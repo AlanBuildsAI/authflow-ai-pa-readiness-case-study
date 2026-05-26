@@ -87,8 +87,6 @@ docs/
 sample_outputs/
   README.md
   readiness_response_sample.json
-.env.example
-.gitignore
 README.md
 ```
 
@@ -101,7 +99,7 @@ This public case study does not include:
 - Real patient data
 - PHI
 - Production clinical workflows
-- Private API keys or credentials
+- Private credentials
 - Internal development artifacts
 - Autonomous payer submission
 - Approval prediction

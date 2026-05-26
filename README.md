@@ -1,14 +1,14 @@
-# AuthFlow AI / Plenara — Prior Authorization Readiness Case Study
+# AuthFlow AI / Plenara — Prior Authorization Readiness Workflow
 
-A recruiter-safe portfolio case study for a synthetic-data healthcare workflow prototype that structures prior authorization information and evaluates packet readiness before submission.
+A healthcare workflow automation case study showing how prior authorization inputs can be structured into readiness states, blockers, review fields, and clinic-facing outputs.
 
-> **Portfolio status:** Synthetic/mock data only. No PHI. No real patient data. Not for clinical or production use.
+> Synthetic/mock data only. No PHI. No real patient data. Not for clinical or production use.
 
 ---
 
 ## One-line Summary
 
-AuthFlow AI, externally positioned as **Plenara**, is a workflow automation prototype that turns unstructured prior authorization inputs into structured, readiness-aware outputs using Python, JSON-style contracts, validation logic, and explainable review states.
+AuthFlow AI, externally positioned as **Plenara**, is a workflow automation prototype that turns unstructured prior authorization inputs into structured, readiness-aware outputs using Python, JSON-style contracts, rule-based validation logic, and explainable review states.
 
 ---
 
@@ -24,9 +24,23 @@ The goal is not to predict approvals. The goal is to support human review by mak
 
 ---
 
+## Workflow Architecture
+
+```mermaid
+flowchart TD
+    A[Synthetic clinical/admin input] --> B[Field extraction and structuring]
+    B --> C[Canonical case model]
+    C --> D[Payer-style readiness rules]
+    D --> E[Readiness status]
+    E --> F[Blockers, missing fields, review fields]
+    F --> G[Clinic-facing readiness output]
+```
+
+---
+
 ## What This Case Study Shows
 
-This public repo is intentionally **not** the full private development repository. It is a recruiter-safe case study that demonstrates:
+This public repository is a focused case study based on a larger private development prototype. It demonstrates:
 
 - Problem framing
 - Workflow analysis
@@ -34,26 +48,8 @@ This public repo is intentionally **not** the full private development repositor
 - Readiness states
 - Example synthetic output
 - Real code excerpt from the readiness engine
-- Safety boundaries
-- Future demo plan
-
----
-
-## Core Workflow
-
-```text
-Synthetic clinical/admin input
-        ↓
-Field extraction / structuring
-        ↓
-Canonical case model
-        ↓
-Payer-style readiness rules
-        ↓
-Readiness status + blockers + review fields
-        ↓
-Clinic-facing readiness report
-```
+- Safety boundaries for regulated-domain work
+- Future demo roadmap
 
 ---
 
@@ -110,21 +106,6 @@ This file contains a selected real excerpt from the private prototype readiness 
 
 ---
 
-## What Is Intentionally Excluded
-
-This public case study does not include:
-
-- Real patient data
-- PHI
-- Production clinical workflows
-- Private credentials
-- Internal development artifacts
-- Full private source code
-- Autonomous payer submission
-- Approval prediction
-
----
-
 ## Sample Output
 
 See:
@@ -144,7 +125,18 @@ The sample shows a synthetic readiness response with:
 
 ---
 
-## Safety Notice
+## Safety Boundaries
+
+This public case study does not include:
+
+- Real patient data
+- PHI
+- Production clinical workflows
+- Private credentials
+- Internal development artifacts
+- Full private source code
+- Autonomous payer submission
+- Approval prediction
 
 This project is for portfolio and workflow research purposes only. It is not medical advice, legal advice, a clinical decision tool, or production prior authorization software.
 
@@ -154,14 +146,13 @@ Any production healthcare implementation would require HIPAA-compliant infrastru
 
 ## Current Status
 
-Recruiter-safe public case study. The private development repo contains additional prototype code and experiments. This public repo is designed to communicate the project clearly without exposing sensitive or unfinished implementation details.
+Public technical case study based on a private prototype. The goal of this repository is to communicate the problem, workflow design, implementation style, and output structure clearly while keeping private development artifacts separate.
 
 ---
 
-## Next Steps
+## Roadmap
 
-- Add workflow diagram
-- Add screenshots of synthetic sample report
+- Add screenshot of synthetic readiness output
 - Add short demo walkthrough
-- Add a lightweight mock UI
-- Add more synthetic readiness scenarios
+- Add lightweight mock UI or dashboard
+- Add additional synthetic readiness scenarios

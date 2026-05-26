@@ -33,6 +33,7 @@ This public repo is intentionally **not** the full private development repositor
 - Data structuring
 - Readiness states
 - Example synthetic output
+- Real code excerpt from the readiness engine
 - Safety boundaries
 - Future demo plan
 
@@ -71,6 +72,7 @@ This project is designed to demonstrate practical skills relevant to Data Analys
 - Translating messy workflows into structured data models
 - Designing validation and completeness checks
 - Working with JSON-style outputs and schemas
+- Implementing nested rule evaluation logic
 - Thinking through operational bottlenecks
 - Documenting assumptions, risks, and limitations
 - Building in a regulated-domain mindset without using sensitive data
@@ -81,6 +83,9 @@ This project is designed to demonstrate practical skills relevant to Data Analys
 ## Repository Structure
 
 ```text
+code_excerpts/
+  README.md
+  readiness_engine_excerpt.py
 docs/
   portfolio_case_study.md
   future_demo_plan.md
@@ -93,6 +98,18 @@ README.md
 
 ---
 
+## Code Excerpt
+
+See:
+
+```text
+code_excerpts/readiness_engine_excerpt.py
+```
+
+This file contains a selected real excerpt from the private prototype readiness engine. It is shared to demonstrate implementation style, nested rule evaluation, blocker pass/fail logic, and readiness summary thinking without exposing the full private codebase.
+
+---
+
 ## What Is Intentionally Excluded
 
 This public case study does not include:
@@ -102,6 +119,7 @@ This public case study does not include:
 - Production clinical workflows
 - Private credentials
 - Internal development artifacts
+- Full private source code
 - Autonomous payer submission
 - Approval prediction
 

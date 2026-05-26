@@ -1,0 +1,31 @@
+{
+  "status": "ok",
+  "readiness": "needs_review",
+  "passed_blockers": 4,
+  "failed_blockers": 0,
+  "missing_fields": [],
+  "unmet_criteria": [],
+  "review_required_fields": [
+    "diagnosis.disease_activity.moderate_to_severe"
+  ],
+  "confidence_summary": {
+    "high": 4,
+    "medium": 0,
+    "low": 1,
+    "unknown": 0
+  },
+  "patient_summary": {
+    "data_type": "synthetic_mock_data",
+    "note": "No real patient data or PHI is used in this sample."
+  },
+  "payer_summary": {
+    "payer": "Synthetic payer example",
+    "ruleset_type": "prior_authorization_readiness"
+  },
+  "request_summary": {
+    "medication": "adalimumab",
+    "diagnosis": "rheumatoid_arthritis",
+    "authorization_type": "initial_authorization"
+  },
+  "safety_notice": "Portfolio sample only. Not intended for real clinical use."
+}

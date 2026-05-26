@@ -87,6 +87,7 @@ docs/
 sample_outputs/
   README.md
   readiness_response_sample.json
+.gitignore
 README.md
 ```
 

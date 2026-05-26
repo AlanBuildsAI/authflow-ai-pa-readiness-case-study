@@ -127,18 +127,7 @@ The sample shows a synthetic readiness response with:
 
 ## Safety Boundaries
 
-This public case study does not include:
-
-- Real patient data
-- PHI
-- Production clinical workflows
-- Private credentials
-- Internal development artifacts
-- Full private source code
-- Autonomous payer submission
-- Approval prediction
-
-This project is for portfolio and workflow research purposes only. It is not medical advice, legal advice, a clinical decision tool, or production prior authorization software.
+This case study uses synthetic/mock data only. It does not handle PHI, process real patient records, submit to payers, predict approvals, replace clinical judgment, or represent production clinical software.
 
 Any production healthcare implementation would require HIPAA-compliant infrastructure, BAAs, encryption, access controls, audit logging, clinical/legal review, and human oversight.
 
@@ -150,9 +139,6 @@ Public technical case study based on a private prototype. The goal of this repos
 
 ---
 
-## Roadmap
+## Future Development
 
-- Add screenshot of synthetic readiness output
-- Add short demo walkthrough
-- Add lightweight mock UI or dashboard
-- Add additional synthetic readiness scenarios
+Planned improvements include a synthetic output screenshot, short demo walkthrough, lightweight mock UI or dashboard, and additional synthetic readiness scenarios.

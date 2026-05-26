@@ -114,6 +114,8 @@ See:
 sample_outputs/readiness_response_sample.json
 ```
 
+Sample output preview: the file contains a complete synthetic response including readiness state, blocker counts, missing fields, review-required fields, confidence summary, and safety notice.
+
 The sample shows a synthetic readiness response with:
 
 - readiness status

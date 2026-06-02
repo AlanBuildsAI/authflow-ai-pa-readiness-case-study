@@ -2,7 +2,7 @@
 
 **Prior authorization readiness, made explainable.**
 
-Plenara (internal prototype name: **AuthFlow AI**) is a recruiter-safe public case study based on a private synthetic-data healthcare workflow prototype. The private prototype turns synthetic prior authorization inputs into structured readiness states, blockers, review fields, confidence signals, and clinic-facing outputs.
+Plenara (internal prototype name: **AuthFlow AI**) is a public technical case study based on a private synthetic-data healthcare workflow prototype. The private prototype turns synthetic prior authorization inputs into structured readiness states, blockers, review fields, confidence signals, and clinic-facing outputs.
 
 > Synthetic/mock data only. No PHI. No real patient data. Not for clinical or production use.  
 > This case study does not approve, deny, or guarantee payer coverage.
@@ -13,7 +13,10 @@ Plenara (internal prototype name: **AuthFlow AI**) is a recruiter-safe public ca
 
 The private prototype now includes a local FastAPI demo UI with three synthetic scenarios: **READY**, **NEEDS REVIEW**, and **BLOCKED**.
 
-![Plenara demo preview — READY state](docs/assets/demo-ready.svg)
+| READY | NEEDS REVIEW | BLOCKED |
+|---|---|---|
+| ![Plenara demo preview — READY state](docs/assets/demo-ready.svg) | ![Plenara demo preview — NEEDS REVIEW state](docs/assets/demo-needs-review.svg) | ![Plenara demo preview — BLOCKED state](docs/assets/demo-blocked.svg) |
+| Synthetic blocker checks are satisfied. | A critical field needs human review due to confidence. | A blocker fails and the packet should pause for review. |
 
 The visual demo shows the core workflow in one screen:
 
@@ -21,7 +24,7 @@ The visual demo shows the core workflow in one screen:
 Synthetic note excerpts → extracted fields + confidence chips → readiness status + blocker board
 ```
 
-The public repository remains a safe portfolio case study. It does not include the full private codebase, API keys, production workflows, or real patient data.
+This public repository is a portfolio-facing case study. It does not include the full private codebase, API keys, production workflows, or real patient data.
 
 ---
 
@@ -122,6 +125,8 @@ code_excerpts/
 docs/
   assets/
     demo-ready.svg
+    demo-needs-review.svg
+    demo-blocked.svg
   portfolio_case_study.md
   future_demo_plan.md
 sample_outputs/
@@ -190,7 +195,6 @@ FastAPI demo UI + three synthetic scenarios + README/screenshots packaging compl
 
 Planned improvements include:
 
-- Additional recruiter-safe demo visuals
 - Short demo walkthrough
 - More synthetic readiness scenarios
 - Public case study write-up explaining design decisions

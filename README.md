@@ -15,7 +15,7 @@ The private prototype now includes a local FastAPI demo UI with three synthetic 
 
 | READY | NEEDS REVIEW | BLOCKED |
 |---|---|---|
-| ![Plenara demo preview — READY state](docs/assets/demo-ready.svg) | ![Plenara demo preview — NEEDS REVIEW state](docs/assets/demo-needs-review.svg) | ![Plenara demo preview — BLOCKED state](docs/assets/demo-blocked.svg) |
+| ![Plenara demo preview — READY state](docs/assets/demo-ready.png) | ![Plenara demo preview — NEEDS REVIEW state](docs/assets/demo-needs-review.png) | ![Plenara demo preview — BLOCKED state](docs/assets/demo-blocked.png) |
 | Synthetic blocker checks are satisfied. | A critical field needs human review due to confidence. | A blocker fails and the packet should pause for review. |
 
 The visual demo shows the core workflow in one screen:
@@ -124,9 +124,9 @@ code_excerpts/
   readiness_engine_excerpt.py
 docs/
   assets/
-    demo-ready.svg
-    demo-needs-review.svg
-    demo-blocked.svg
+    demo-ready.png
+    demo-needs-review.png
+    demo-blocked.png
   portfolio_case_study.md
   future_demo_plan.md
 sample_outputs/

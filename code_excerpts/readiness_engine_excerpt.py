@@ -1,5 +1,5 @@
 """
-Recruiter-safe excerpt from the private AuthFlow AI / Plenara readiness engine.
+Public-safe excerpt from the Plenara readiness engine.
 
 This is not a standalone production module. It is a selected excerpt included to
 show implementation style, rule evaluation logic, and readiness-state thinking.

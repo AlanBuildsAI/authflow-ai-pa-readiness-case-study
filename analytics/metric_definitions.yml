@@ -1,0 +1,151 @@
+# Plenara — HealthOps Readiness Lab
+# Client-reporting metric definitions (synthetic).
+#
+# These definitions document how each metric is calculated so analysts,
+# engineers, and stakeholders share one source of truth. All inputs are
+# synthetic; no real patient, provider, payer, or reimbursement data is used.
+
+version: 1
+
+conventions:
+  readiness_states: ["READY", "NEEDS REVIEW", "BLOCKED"]
+  rate_definition: "share of records in [0, 1]; multiply by 100 for a percentage"
+  synthetic_only: true
+
+metrics:
+  # --- Prior Authorization Readiness ------------------------------------
+  - name: readiness_rate
+    module: prior_authorization
+    definition: "Share of PA cases with readiness_status = READY."
+    formula: "count(readiness_status == 'READY') / count(*)"
+    python: "plenara.metrics.readiness_rate"
+
+  - name: blocked_rate
+    module: prior_authorization
+    definition: "Share of PA cases with readiness_status = BLOCKED."
+    formula: "count(readiness_status == 'BLOCKED') / count(*)"
+    python: "plenara.metrics.blocked_rate"
+
+  - name: needs_review_rate
+    module: prior_authorization
+    definition: "Share of PA cases with readiness_status = NEEDS REVIEW."
+    formula: "count(readiness_status == 'NEEDS REVIEW') / count(*)"
+    python: "plenara.metrics.needs_review_rate"
+
+  - name: average_missing_fields
+    module: prior_authorization
+    definition: "Mean number of missing fields per PA case."
+    formula: "mean(missing_field_count)"
+    python: "plenara.metrics.average_missing_fields"
+
+  - name: review_workload_rate
+    module: prior_authorization
+    definition: "Share of PA cases that are not READY (review + blocked queue)."
+    formula: "(needs_review + blocked) / count(*)"
+    python: "1 - plenara.metrics.readiness_rate"
+
+  - name: average_days_to_ready
+    module: prior_authorization
+    definition: "Mean synthetic days-to-ready for non-READY cases at snapshot."
+    formula: "mean(days_to_ready)"
+    python: "plenara.metrics.average_days_to_ready"
+
+  - name: data_completeness_score
+    module: prior_authorization
+    definition: "Mean synthetic data-completeness score (0-1)."
+    formula: "mean(data_completeness_score)"
+    python: "plenara.metrics.data_completeness_score"
+
+  # --- Provider Onboarding Readiness ------------------------------------
+  - name: onboarding_ready_rate
+    module: provider_onboarding
+    definition: "Share of provider onboarding records with readiness_status = READY."
+    formula: "count(readiness_status == 'READY') / count(*)"
+    python: "plenara.metrics.onboarding_ready_rate"
+
+  - name: provider_ready_rate
+    module: provider_onboarding
+    definition: "Alias of onboarding_ready_rate at the provider grain."
+    formula: "count(readiness_status == 'READY') / count(*)"
+    python: "plenara.metrics.onboarding_ready_rate"
+
+  - name: payer_clinic_ready_rate
+    module: provider_onboarding
+    definition: "READY rate per clinic x payer combination (matrix)."
+    formula: "mean(readiness_status == 'READY') grouped by clinic_id, payer_name_mock"
+    python: "plenara.metrics.payer_clinic_ready_rate"
+
+  - name: average_days_in_stage
+    module: provider_onboarding
+    definition: "Mean days a provider record has spent in its onboarding stage."
+    formula: "mean(days_in_stage)"
+    python: "plenara.metrics.average_days_in_stage"
+
+  - name: aging_task_rate
+    module: provider_onboarding
+    definition: "Share of onboarding records aging beyond 30 days in stage."
+    formula: "count(days_in_stage > 30) / count(*)"
+    python: "plenara.metrics.aging_task_rate"
+
+  # --- Diagnostic / Lab Revenue Cycle Readiness -------------------------
+  - name: clean_claim_readiness_rate
+    module: revenue_cycle
+    definition: "Share of synthetic claims that are READY for clean submission."
+    formula: "count(claim_readiness_status == 'READY') / count(*)"
+    python: "plenara.metrics.clean_claim_readiness_rate"
+
+  - name: blocked_claim_rate
+    module: revenue_cycle
+    definition: "Share of synthetic claims that are BLOCKED."
+    formula: "count(claim_readiness_status == 'BLOCKED') / count(*)"
+    python: "plenara.metrics.blocked_claim_rate"
+
+  - name: needs_review_claim_rate
+    module: revenue_cycle
+    definition: "Share of synthetic claims that are NEEDS REVIEW."
+    formula: "count(claim_readiness_status == 'NEEDS REVIEW') / count(*)"
+    python: "plenara.metrics.needs_review_claim_rate"
+
+  - name: denial_risk_rate
+    module: revenue_cycle
+    definition: >
+      Share of claims in each synthetic denial-risk category. This is an
+      operational categorization derived from data-quality and payer-rule
+      signals, NOT a denial prediction.
+    formula: "count by denial_risk_category / count(*)"
+    python: "plenara.metrics.denial_risk_distribution"
+
+  - name: revenue_at_risk_synthetic
+    module: revenue_cycle
+    definition: >
+      Sum of synthetic 'estimated revenue at risk' across non-clean claims.
+      Mock dollars only; not observed business impact and not real reimbursement.
+    formula: "sum(estimated_revenue_at_risk_synthetic)"
+    python: "plenara.metrics.revenue_at_risk_synthetic"
+
+  - name: aging_claim_rate
+    module: revenue_cycle
+    definition: "Share of claims aged beyond 60 days since service (buckets 61-90, 90+)."
+    formula: "count(aging_bucket in ['61-90','90+']) / count(*)"
+    python: "derived from plenara.metrics.aging_bucket_distribution"
+
+  - name: owner_workqueue_volume
+    module: revenue_cycle
+    definition: "Count of non-READY claims per owner team (the work queue)."
+    formula: "count(claim_readiness_status != 'READY') grouped by owner_team"
+    python: "plenara.metrics.workqueue_by_owner_team"
+
+  - name: payer_rule_failure_rate
+    module: revenue_cycle
+    definition: "Share of claims where payer_rule_status = fail."
+    formula: "count(payer_rule_status == 'fail') / count(*)"
+
+  - name: authorization_missing_rate
+    module: revenue_cycle
+    definition: "Share of claims where prior_auth_status = missing."
+    formula: "count(prior_auth_status == 'missing') / count(*)"
+
+  - name: documentation_missing_rate
+    module: revenue_cycle
+    definition: "Share of claims where documentation_status in [incomplete, stale]."
+    formula: "count(documentation_status in ['incomplete','stale']) / count(*)"

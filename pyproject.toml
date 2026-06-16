@@ -1,0 +1,5 @@
+[tool.pytest.ini_options]
+# Make `import plenara` and `import streamlit_app` resolve in tests and CI.
+pythonpath = ["src", "."]
+testpaths = ["tests"]
+addopts = "-q"

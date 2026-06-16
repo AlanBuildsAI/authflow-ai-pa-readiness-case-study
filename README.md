@@ -137,11 +137,32 @@ READY / NEEDS REVIEW / BLOCKED  + blockers, review reasons, missing fields
 Metrics + data-quality checks  →  dashboards + stakeholder reporting
 ```
 
-## App screenshots / preview assets
+## Demo preview
 
-The repository ships earlier prior-authorization demo previews under
-[`docs/assets/`](docs/assets). The Streamlit app renders the full three-module
-dashboard described above; run it locally to generate fresh views.
+Plenara covers **three synthetic readiness workflows** — prior authorization
+readiness, provider onboarding readiness, and revenue cycle / claim readiness —
+each using the same explainable **READY / NEEDS REVIEW / BLOCKED** vocabulary.
+The screenshots below are from the current Streamlit command-center UI on
+synthetic data only.
+
+| Command center | Work queue |
+|---|---|
+| ![Plenara command center — KPIs and top actions for today](docs/assets/plenara_command_center.png) | ![Plenara unified work queue with severity and recommended actions](docs/assets/plenara_work_queue.png) |
+| Headline KPIs (critical blockers, aging claims, unassigned work, synthetic revenue at risk, overall readiness) plus prioritized **Top actions for today**. | One prioritized queue across all three workflows with severity, owner, age, and a recommended next action. |
+
+| Prior authorization readiness | Revenue cycle readiness |
+|---|---|
+| ![Plenara prior authorization readiness showing a BLOCKED case](docs/assets/plenara_prior_auth_readiness.png) | ![Plenara revenue cycle clean-claim readiness](docs/assets/plenara_revenue_cycle.png) |
+| A synthetic PA case showing **READY / NEEDS REVIEW / BLOCKED** status, readiness blockers, the recommended next action, and what would make it READY. | Clean-claim readiness, blocked / needs-review rates, aging buckets, denial-risk category (a synthetic operational signal, not a prediction), and synthetic revenue at risk. |
+
+| Analytics layer |
+|---|
+| ![Plenara analytics layer — metric definitions and SQL models](docs/assets/plenara_analytics_layer.png) |
+| Metric definitions, the dbt-style SQL modeling layer, and a data-model summary — the technical proof behind the dashboards. |
+
+> All screenshots use synthetic/mock data only — no PHI, no real patient,
+> provider, payer, or claims data. The earlier prior-authorization previews
+> remain under [`docs/assets/`](docs/assets) for reference.
 
 ---
 

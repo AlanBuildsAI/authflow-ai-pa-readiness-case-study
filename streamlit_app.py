@@ -1,10 +1,13 @@
 """
-Plenara — Healthcare Operations Readiness Lab (Streamlit demo).
+Plenara — Healthcare Operations Readiness Lab (Streamlit command center).
 
-A synthetic healthcare operations analytics demo covering three readiness
-modules: prior authorization, provider onboarding, and diagnostic/lab revenue
-cycle. All data is synthetic/mock. No PHI, no live integrations, no network
-calls at runtime.
+A synthetic healthcare operations readiness product demo across three modules:
+prior authorization, provider onboarding, and diagnostic/lab revenue cycle.
+The app is organized as an operations command center: what is blocked, why, who
+owns it, what to do next, what is aging, and where the friction is.
+
+All data is synthetic/mock. No PHI, no live integrations, no network calls at
+runtime, and no approval/denial prediction.
 
 Run:
     PYTHONPATH=src streamlit run streamlit_app.py
@@ -12,11 +15,9 @@ Run:
 
 from __future__ import annotations
 
-import os
 import sys
 from pathlib import Path
 
-# Make the `plenara` package importable whether or not PYTHONPATH=src is set.
 _SRC = Path(__file__).resolve().parent / "src"
 if str(_SRC) not in sys.path:
     sys.path.insert(0, str(_SRC))
@@ -34,35 +35,50 @@ from plenara.data_quality import (
 from plenara.provider_onboarding import evaluate_provider_onboarding
 from plenara.readiness import BLOCKED, NEEDS_REVIEW, READY, evaluate_pa_case
 from plenara.sample_data import (
+    generate_all,
     load_authorization_cases,
     load_claim_readiness,
     load_provider_onboarding,
 )
+from plenara.scenarios import DEFAULT_SCENARIO, SCENARIOS
+from plenara.workqueue import build_unified_work_queue, summarize_top_actions
 
 SAFETY_BANNER = (
-    "Synthetic/mock data only. No PHI, no real patient data, no payer "
-    "integrations, no clinical decisions, and no production use."
+    "Synthetic / mock data only. No PHI, no real patient/provider/payer/claims "
+    "data, no live integrations, no network calls, and no approval/denial prediction."
 )
 ANALYTICS_DIR = Path(__file__).resolve().parent / "analytics"
+STATUS_ICON = {READY: "🟢", NEEDS_REVIEW: "🟡", BLOCKED: "🔴"}
+SEVERITY_ICON = {"High": "🔴", "Medium": "🟡", "Low": "🟢"}
+
+BUNDLED_LABEL = "Bundled data (moderate backlog)"
 
 
 # ---------------------------------------------------------------------------
-# Data loading (cached)
+# Data loading (cached per scenario)
 # ---------------------------------------------------------------------------
-def _load_data():
-    return (
-        load_authorization_cases(),
-        load_provider_onboarding(),
-        load_claim_readiness(),
-    )
+def _load_bundled():
+    return load_authorization_cases(), load_provider_onboarding(), load_claim_readiness()
 
 
-def get_data():
-    """Load datasets, using Streamlit cache when available."""
+def _generate(scenario_key: str):
+    frames = generate_all(scenario_key)
+    return frames["authorization"], frames["provider_onboarding"], frames["claim_readiness"]
+
+
+def _maybe_cache(fn):
     cache = getattr(st, "cache_data", None)
-    if cache is not None:
-        return cache(_load_data)()
-    return _load_data()
+    return cache(fn) if cache is not None else fn
+
+
+_load_bundled_cached = _maybe_cache(_load_bundled)
+_generate_cached = _maybe_cache(_generate)
+
+
+def get_data(scenario_label: str):
+    if scenario_label == BUNDLED_LABEL:
+        return _load_bundled_cached()
+    return _generate_cached(scenario_label)
 
 
 def _pct(value: float) -> str:
@@ -73,156 +89,193 @@ def _money(value: float) -> str:
     return f"${value:,.0f}"
 
 
-def _filter_df(df: pd.DataFrame, column: str, selected: list[str]) -> pd.DataFrame:
+def _filter(df: pd.DataFrame, column: str, selected: list[str]) -> pd.DataFrame:
     if not selected or column not in df.columns:
         return df
     return df[df[column].isin(selected)]
 
 
 # ---------------------------------------------------------------------------
-# Tabs
+# Command center
 # ---------------------------------------------------------------------------
-def render_executive(pa_df, onb_df, claims_df):
-    st.subheader("Executive HealthOps overview")
-    summary = reporting.executive_summary(pa_df, onb_df, claims_df)
+def render_command_center(pa_df, onb_df, claims_df, work_queue):
+    st.subheader("Command center")
+    st.caption("What is blocked, what is aging, who owns it, and what to prioritize today.")
 
-    st.markdown("**Prior authorization**")
-    c = st.columns(4)
-    c[0].metric("PA ready rate", _pct(summary["prior_authorization"]["ready_rate"]))
-    c[1].metric("PA blocked rate", _pct(summary["prior_authorization"]["blocked_rate"]))
-    c[2].metric("Avg data completeness", _pct(summary["prior_authorization"]["avg_data_completeness"]))
-    c[3].metric("Review workload", summary["prior_authorization"]["review_workload"])
+    kpis = reporting.command_center_kpis(pa_df, onb_df, claims_df)
+    c = st.columns(5)
+    c[0].metric("Critical blockers", kpis["critical_blockers"])
+    c[1].metric("Aging claims 60+", kpis["aging_claims_60_plus"])
+    c[2].metric("Unassigned work items", kpis["unassigned_work_items"])
+    c[3].metric("Synthetic revenue at risk", _money(kpis["revenue_at_risk_synthetic"]))
+    c[4].metric("Overall readiness rate", _pct(kpis["overall_readiness_rate"]))
 
-    st.markdown("**Provider onboarding**")
-    c = st.columns(4)
-    c[0].metric("Onboarding ready rate", _pct(summary["provider_onboarding"]["ready_rate"]))
-    c[1].metric("Blocked rate", _pct(summary["provider_onboarding"]["blocked_rate"]))
-    c[2].metric("Avg days in stage", f"{summary['provider_onboarding']['avg_days_in_stage']:.0f}")
-    c[3].metric("Aging task rate", _pct(summary["provider_onboarding"]["aging_task_rate"]))
-
-    st.markdown("**Diagnostic / lab revenue cycle**")
-    c = st.columns(4)
-    c[0].metric("Clean claim readiness", _pct(summary["revenue_cycle"]["clean_claim_readiness_rate"]))
-    c[1].metric("Synthetic revenue at risk", _money(summary["revenue_cycle"]["revenue_at_risk_synthetic"]))
-    c[2].metric("Top denial-risk category", summary["revenue_cycle"]["top_denial_risk_category"])
-    c[3].metric("Aging claims (60d+)", summary["revenue_cycle"]["aging_claims_count"])
+    st.divider()
+    st.markdown("### Top actions for today")
+    actions = summarize_top_actions(work_queue)
+    if not actions:
+        st.success("No high-priority actions in the current view.")
+    for a in actions:
+        impact = f" · synthetic impact {_money(a['synthetic_impact'])}" if a["synthetic_impact"] else ""
+        with st.container(border=True):
+            st.markdown(f"**[{a['module']}] {a['issue']}** — {a['affected_records']} record(s){impact}")
+            st.caption(f"Why it matters: {a['why']}")
+            st.markdown(f"➡️ **Recommended next action:** {a['recommended_action']}")
 
     st.divider()
     left, right = st.columns(2)
     with left:
-        st.caption("PA readiness distribution")
-        st.bar_chart(pd.Series(metrics.status_distribution(pa_df)))
-        st.caption("Onboarding readiness by clinic (READY rate)")
-        by_clinic = onb_df.assign(ready=(onb_df["readiness_status"] == READY).astype(float)).groupby("clinic_id")["ready"].mean()
-        st.bar_chart(by_clinic)
+        st.caption("Readiness by workflow")
+        frame = pd.DataFrame(
+            {
+                "Prior auth": metrics.status_distribution(pa_df),
+                "Onboarding": metrics.status_distribution(onb_df),
+                "Revenue cycle": metrics.status_distribution(claims_df, "claim_readiness_status"),
+            }
+        )
+        st.bar_chart(frame)
     with right:
-        st.caption("Claim readiness distribution")
-        st.bar_chart(pd.Series(metrics.status_distribution(claims_df, "claim_readiness_status")))
-        st.caption("Aging tasks by owner team (onboarding + claims, non-ready)")
-        owners = pd.Series(metrics.workqueue_by_owner_team(claims_df))
-        if not owners.empty:
-            st.bar_chart(owners)
+        st.caption("Synthetic revenue at risk by payer")
+        rev = pd.Series(metrics.revenue_at_risk_by_payer(claims_df))
+        if not rev.empty:
+            st.bar_chart(rev)
 
-    st.info(summary["safety_notice"])
+    st.info(kpis["safety_notice"])
 
 
+# ---------------------------------------------------------------------------
+# Unified work queue
+# ---------------------------------------------------------------------------
+def render_work_queue(work_queue):
+    st.subheader("Work queue")
+    st.caption("One prioritized queue across all three workflows. Severity drives the order.")
+
+    cols = st.columns(3)
+    modules = cols[0].multiselect("Module", sorted(work_queue["module"].unique()))
+    severities = cols[1].multiselect("Severity", ["High", "Medium", "Low"])
+    owners = cols[2].multiselect("Owner team", sorted(work_queue["owner_team"].astype(str).unique()))
+
+    view = work_queue
+    view = _filter(view, "module", modules)
+    view = _filter(view, "severity", severities)
+    view = _filter(view, "owner_team", owners)
+
+    sev = view["severity"].value_counts().to_dict()
+    s = st.columns(3)
+    s[0].metric("High", sev.get("High", 0))
+    s[1].metric("Medium", sev.get("Medium", 0))
+    s[2].metric("Total in queue", len(view))
+
+    display = view.copy()
+    display["severity"] = display["severity"].map(lambda x: f"{SEVERITY_ICON.get(x, '')} {x}")
+    display["synthetic_impact"] = display["synthetic_impact"].map(lambda v: _money(v) if v else "—")
+    display["age_days"] = display["age_days"].astype(int)
+    st.dataframe(display, use_container_width=True, hide_index=True)
+    st.caption(
+        "Severity — High: blocked + aging beyond internal SLA / high synthetic impact / "
+        "unassigned owner. Medium: other blocked or needs-review. Low: ready / informational."
+    )
+
+
+# ---------------------------------------------------------------------------
+# Module tabs
+# ---------------------------------------------------------------------------
 def render_prior_auth(pa_df):
-    st.subheader("Prior authorization readiness")
+    st.subheader("Prior auth — submission readiness")
     if pa_df.empty:
-        st.warning("No PA cases match the current filters.")
+        st.warning("No prior authorization cases match the current filters.")
         return
 
     case_id = st.selectbox("Select a synthetic case", pa_df["case_id"].tolist())
     row = pa_df[pa_df["case_id"] == case_id].iloc[0].to_dict()
     result = evaluate_pa_case(row)
 
-    status_color = {READY: "🟢", NEEDS_REVIEW: "🟡", BLOCKED: "🔴"}[result.status]
-    st.markdown(f"### {status_color} {result.status}")
-    st.write(reporting.pa_case_explanation(row))
-
+    st.markdown(f"### {STATUS_ICON[result.status]} {result.status}")
     c = st.columns(4)
     c[0].metric("Failed blockers", int(row.get("failed_blocker_count", 0)))
     c[1].metric("Missing fields", int(row.get("missing_field_count", 0)))
-    c[2].metric("Review-required", int(row.get("review_required_count", 0)))
+    c[2].metric("Needs review", int(row.get("review_required_count", 0)))
     c[3].metric("Data completeness", _pct(float(row.get("data_completeness_score", 0))))
 
-    st.json(
-        {
-            "case_id": row.get("case_id"),
-            "readiness_status": result.status,
-            "blockers": result.blockers,
-            "review_reasons": result.review_reasons,
-            "missing_fields": result.missing_fields,
-            "confidence_band": row.get("confidence_band"),
-            "safety_notice": reporting.SYNTHETIC_NOTICE,
-        }
-    )
+    st.markdown("**Readiness blockers**")
+    if result.blockers:
+        for b in result.blockers:
+            st.markdown(f"- 🔴 {b}")
+    elif result.review_reasons:
+        for r in result.review_reasons:
+            st.markdown(f"- 🟡 {r}")
+    else:
+        st.markdown("- 🟢 No blockers — ready for submission.")
+
+    st.markdown(f"**Recommended next action:** {reporting.pa_case_explanation(row)}")
+    st.markdown("**What would make it READY**")
+    for step in reporting.pa_path_to_ready(row):
+        st.markdown(f"- {step}")
 
 
 def render_onboarding(onb_df):
-    st.subheader("Provider onboarding matrix")
+    st.subheader("Provider onboarding — readiness matrix")
     if onb_df.empty:
         st.warning("No onboarding records match the current filters.")
         return
+
+    c = st.columns(3)
+    c[0].metric("Ready for go-live", _pct(metrics.onboarding_ready_rate(onb_df)))
+    c[1].metric("Aging beyond SLA", _pct(metrics.aging_task_rate(onb_df)))
+    c[2].metric("Avg days in stage", f"{metrics.average_days_in_stage(onb_df):.0f}")
 
     st.caption("Clinic × payer onboarding READY rate")
     matrix = metrics.payer_clinic_ready_rate(onb_df)
     if not matrix.empty:
         st.dataframe(matrix.style.format("{:.0%}"), use_container_width=True)
 
-    c = st.columns(3)
-    c[0].metric("Ready rate", _pct(metrics.onboarding_ready_rate(onb_df)))
-    c[1].metric("Aging task rate", _pct(metrics.aging_task_rate(onb_df)))
-    c[2].metric("Avg days in stage", f"{metrics.average_days_in_stage(onb_df):.0f}")
-
     st.caption("Top blocker categories")
     st.bar_chart(pd.Series(metrics.blocker_category_distribution(onb_df)))
 
-    st.caption("Onboarding work queue (blocked + needs review)")
-    st.dataframe(reporting.onboarding_work_queue(onb_df), use_container_width=True)
+    st.markdown(
+        "**Aging / ownership:** records past the internal SLA or without an owner team are the "
+        "first that age into blockers. The queue below is sorted by days in stage."
+    )
+    st.caption("Blocked + needs-review onboarding queue")
+    st.dataframe(reporting.onboarding_work_queue(onb_df), use_container_width=True, hide_index=True)
 
 
 def render_revenue_cycle(claims_df):
-    st.subheader("Revenue cycle readiness — diagnostic / lab")
+    st.subheader("Revenue cycle — clean-claim readiness")
     if claims_df.empty:
         st.warning("No claims match the current filters.")
         return
 
     c = st.columns(4)
     c[0].metric("Clean claim readiness", _pct(metrics.clean_claim_readiness_rate(claims_df)))
-    c[1].metric("Blocked claim rate", _pct(metrics.blocked_claim_rate(claims_df)))
-    c[2].metric("Needs-review rate", _pct(metrics.needs_review_claim_rate(claims_df)))
+    c[1].metric("Blocked", _pct(metrics.blocked_claim_rate(claims_df)))
+    c[2].metric("Needs review", _pct(metrics.needs_review_claim_rate(claims_df)))
     c[3].metric("Synthetic revenue at risk", _money(metrics.revenue_at_risk_synthetic(claims_df)))
 
     left, right = st.columns(2)
     with left:
         st.caption("Aging bucket distribution")
         st.bar_chart(pd.Series(metrics.aging_bucket_distribution(claims_df)))
-        st.caption("Denial-risk category (synthetic operational signal)")
-        st.bar_chart(pd.Series(metrics.denial_risk_distribution(claims_df)))
     with right:
-        st.caption("Work queue by owner team (non-ready claims)")
-        st.bar_chart(pd.Series(metrics.workqueue_by_owner_team(claims_df)))
-        st.caption("Synthetic revenue at risk by payer")
-        st.bar_chart(pd.Series(metrics.revenue_at_risk_by_payer(claims_df)))
+        st.caption("Denial-risk category — synthetic operational signal, not a prediction")
+        st.bar_chart(pd.Series(metrics.denial_risk_distribution(claims_df)))
 
     st.divider()
     claim_id = st.selectbox("Inspect a synthetic claim", claims_df["claim_id"].tolist())
     row = claims_df[claims_df["claim_id"] == claim_id].iloc[0].to_dict()
     result = evaluate_claim_readiness(row)
-    status_color = {READY: "🟢", NEEDS_REVIEW: "🟡", BLOCKED: "🔴"}[result.status]
-    st.markdown(f"### {status_color} {result.status} — denial risk: {result.denial_risk_category}")
-    st.write(reporting.claim_explanation(row))
+    st.markdown(f"### {STATUS_ICON[result.status]} {result.status} · denial risk: {result.denial_risk_category}")
+    st.markdown(f"**Recommended next action:** {reporting.claim_explanation(row)}")
+    st.caption("Denial-risk category is a synthetic operational signal derived from data-quality and payer-rule fields — not a denial prediction.")
 
     st.caption("RCM work queue (highest synthetic revenue at risk first)")
-    st.dataframe(reporting.rcm_work_queue(claims_df), use_container_width=True)
-    st.caption("Denial-risk category is a synthetic operational signal — not a denial prediction.")
+    st.dataframe(reporting.rcm_work_queue(claims_df), use_container_width=True, hide_index=True)
 
 
 def _render_checks(title, results):
     st.markdown(f"**{title}**")
     df = pd.DataFrame([r.as_dict() for r in results])
-    st.dataframe(df, use_container_width=True)
+    st.dataframe(df, use_container_width=True, hide_index=True)
     if df["passed"].all():
         st.success("All data-quality checks passed.")
     else:
@@ -240,76 +293,81 @@ def render_data_quality(pa_df, onb_df, claims_df):
     _render_checks("Diagnostic / lab claims", run_claim_checks(claims_df))
 
 
-def render_metrics_tab():
-    st.subheader("Client reporting metrics")
+def render_analytics_layer():
+    st.subheader("Analytics layer")
     st.write(
-        "Metric definitions are documented in `analytics/metric_definitions.yml` "
-        "so analysts, engineers, and stakeholders share one source of truth."
+        "The technical proof behind the dashboards: documented metric definitions, "
+        "a dbt-style SQL modeling layer, and a data-model summary."
     )
-    yml = ANALYTICS_DIR / "metric_definitions.yml"
-    try:
-        import yaml
 
-        defs = yaml.safe_load(yml.read_text())
-        rows = [
-            {"metric": m["name"], "module": m.get("module", ""), "definition": m.get("definition", "")}
-            for m in defs.get("metrics", [])
-        ]
-        st.dataframe(pd.DataFrame(rows), use_container_width=True)
-    except Exception:
-        st.code(yml.read_text() if yml.exists() else "metric_definitions.yml not found")
+    with st.expander("Metric definitions", expanded=True):
+        yml = ANALYTICS_DIR / "metric_definitions.yml"
+        try:
+            import yaml
+
+            defs = yaml.safe_load(yml.read_text())
+            rows = [
+                {"metric": m["name"], "module": m.get("module", ""), "definition": m.get("definition", "")}
+                for m in defs.get("metrics", [])
+            ]
+            st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+        except Exception:
+            st.code(yml.read_text() if yml.exists() else "metric_definitions.yml not found")
+
+    with st.expander("SQL / dbt-style models"):
+        st.markdown(
+            "- **Staging** — `stg_authorization_cases`, `stg_provider_onboarding`, `stg_claim_readiness`\n"
+            "- **Fact** — `fct_authorization_readiness`, `fct_provider_onboarding_readiness`, "
+            "`fct_claim_readiness` (each asserts SQL/Python parity)\n"
+            "- **Marts** — `mart_healthops_client_reporting`, `mart_rcm_client_reporting`"
+        )
+        sql_dir = ANALYTICS_DIR / "sql"
+        files = sorted(sql_dir.glob("*.sql")) if sql_dir.exists() else []
+        if files:
+            choice = st.selectbox("View a model", [f.name for f in files])
+            st.code((sql_dir / choice).read_text(), language="sql")
+
+    with st.expander("Data model summary"):
+        st.markdown(
+            "- **synthetic_authorization_cases** — one synthetic PA case (90 rows)\n"
+            "- **synthetic_provider_onboarding** — one synthetic provider-clinic-payer record (120 rows)\n"
+            "- **synthetic_claim_readiness** — one synthetic diagnostic/lab claim (150 rows)\n\n"
+            "Every row carries `synthetic_only_flag = true` and no PHI-like columns. "
+            "Readiness columns are reproducible from the `plenara` engines."
+        )
 
 
-def render_sql_tab():
-    st.subheader("SQL / modeling layer")
-    st.write(
-        "A dbt-style modeling layer maps the synthetic CSVs into staging, fact, "
-        "and reporting-mart models. This mirrors a real analytics-engineering "
-        "workflow without connecting to a warehouse."
-    )
-    st.markdown(
-        "- **Staging** — `stg_authorization_cases`, `stg_provider_onboarding`, "
-        "`stg_claim_readiness` (type-cast / standardize)\n"
-        "- **Fact** — `fct_authorization_readiness`, "
-        "`fct_provider_onboarding_readiness`, `fct_claim_readiness` "
-        "(derive readiness; assert SQL/Python agree)\n"
-        "- **Marts** — `mart_healthops_client_reporting`, "
-        "`mart_rcm_client_reporting` (client-facing summaries)"
-    )
-    sql_dir = ANALYTICS_DIR / "sql"
-    files = sorted(sql_dir.glob("*.sql")) if sql_dir.exists() else []
-    if files:
-        choice = st.selectbox("View a model", [f.name for f in files])
-        st.code((sql_dir / choice).read_text(), language="sql")
-
-
-def render_methodology():
-    st.subheader("Methodology & safety")
+def render_safety():
+    st.subheader("Safety & methodology")
     st.markdown(
         """
 **Synthetic data only.** Every record is fabricated and flagged
-`synthetic_only_flag = True`. There is no PHI, no real patient/provider/payer
-data, and no real claims or reimbursement figures.
+`synthetic_only_flag = true`. There is no PHI and no real patient, provider,
+payer, claims, or reimbursement data.
+
+**Numbers are designed, not benchmarked.** Scenarios are tuned to be
+operationally plausible so the dashboards tell a coherent story. They are
+**not** industry benchmarks and **not** observed business impact. See
+`docs/domain_calibration.md`.
 
 **How readiness is decided.** Each module uses deterministic, human-readable
-rules (see the `plenara` package). A record is **BLOCKED** when a critical
-requirement fails, **NEEDS REVIEW** when a softer signal needs a human, and
-**READY** when checks pass.
+rules (the `plenara` package). BLOCKED = a critical requirement fails; NEEDS
+REVIEW = a softer signal needs a human; READY = checks pass.
 
 **What this is not.**
-- Not a clinical decision support tool and not medical advice.
-- Not an approval/denial prediction. The `denial_risk_category` is a synthetic
-  operational signal derived from data-quality and payer-rule fields.
-- Not production billing software and not connected to any EHR, payer, or
-  claims system. No network calls happen at runtime.
+- Not clinical decision support and not medical advice.
+- Not an approval/denial prediction — `denial_risk_category` is a synthetic
+  operational signal from data-quality and payer-rule fields.
+- Not production billing software; no EHR/payer integrations and no network
+  calls at runtime.
 
 **What production would require.** Secure infrastructure under regulatory
 review, BAAs, encryption in transit and at rest, role-based access control,
 audit logging, data retention controls, monitoring, clinical/legal review, and
 human oversight.
 
-*Any ROI or revenue-at-risk figure shown here is a synthetic operations
-simulation — not observed business impact.*
+*Any revenue-at-risk figure is a synthetic operations simulation — not observed
+business impact.*
         """
     )
 
@@ -319,72 +377,78 @@ simulation — not observed business impact.*
 # ---------------------------------------------------------------------------
 def main():
     st.set_page_config(page_title="Plenara — Healthcare Operations Readiness Lab", layout="wide")
-
     st.title("Plenara — Healthcare Operations Readiness Lab")
     st.caption(
-        "Synthetic healthcare operations analytics for prior authorization "
-        "readiness, provider onboarding, diagnostic/lab revenue cycle, data "
-        "quality, and stakeholder reporting."
+        "Synthetic operations command center for prior authorization, provider "
+        "onboarding, and diagnostic/lab revenue cycle readiness."
     )
     st.warning(SAFETY_BANNER)
 
-    pa_df, onb_df, claims_df = get_data()
-
     # --- Sidebar ---------------------------------------------------------
     st.sidebar.header("Controls")
-    st.sidebar.subheader("Data source")
-    st.sidebar.write("Using bundled synthetic data.")
+    st.sidebar.subheader("Scenario")
+    scenario_options = [BUNDLED_LABEL] + list(SCENARIOS.keys())
+    scenario_label = st.sidebar.selectbox(
+        "Operating posture", scenario_options, index=0,
+        format_func=lambda k: BUNDLED_LABEL if k == BUNDLED_LABEL else SCENARIOS[k].label,
+    )
+    if scenario_label != BUNDLED_LABEL:
+        st.sidebar.caption(SCENARIOS[scenario_label].ui_copy)
+        st.sidebar.caption("Synthetic scenario design — not a real benchmark.")
+
+    pa_df, onb_df, claims_df = get_data(scenario_label)
 
     st.sidebar.subheader("Filters")
     clinics = sorted(set(pa_df["clinic_id"]) | set(onb_df["clinic_id"]) | set(claims_df["clinic_id"]))
     payers = sorted(set(onb_df["payer_name_mock"]) | set(claims_df["payer_name_mock"]))
     specialties = sorted(set(onb_df["specialty"]))
-    owner_teams = sorted(set(claims_df["owner_team"]) | set(onb_df["owner_team"]))
+    owners = sorted(set(claims_df["owner_team"].astype(str)) | set(onb_df["owner_team"].astype(str)))
 
     sel_clinics = st.sidebar.multiselect("Clinic", clinics)
     sel_payers = st.sidebar.multiselect("Payer", payers)
     sel_specialties = st.sidebar.multiselect("Specialty", specialties)
-    sel_owners = st.sidebar.multiselect("Owner team", owner_teams)
+    sel_owners = st.sidebar.multiselect("Owner team", owners)
 
-    # Apply filters per dataset (only columns that exist).
-    pa_f = _filter_df(pa_df, "clinic_id", sel_clinics)
-    onb_f = _filter_df(_filter_df(_filter_df(_filter_df(onb_df, "clinic_id", sel_clinics), "payer_name_mock", sel_payers), "specialty", sel_specialties), "owner_team", sel_owners)
-    claims_f = _filter_df(_filter_df(_filter_df(claims_df, "clinic_id", sel_clinics), "payer_name_mock", sel_payers), "owner_team", sel_owners)
+    pa_f = _filter(pa_df, "clinic_id", sel_clinics)
+    onb_f = _filter(_filter(_filter(_filter(onb_df, "clinic_id", sel_clinics), "payer_name_mock", sel_payers), "specialty", sel_specialties), "owner_team", sel_owners)
+    claims_f = _filter(_filter(_filter(claims_df, "clinic_id", sel_clinics), "payer_name_mock", sel_payers), "owner_team", sel_owners)
+
+    work_queue = build_unified_work_queue(pa_f, onb_f, claims_f)
 
     st.sidebar.subheader("About")
     st.sidebar.info(
-        "Three modules: prior authorization, provider onboarding, and "
-        "diagnostic/lab revenue cycle readiness. Synthetic data only."
+        "Synthetic operations readiness across prior authorization, provider "
+        "onboarding, and diagnostic/lab revenue cycle. No PHI, no integrations."
     )
 
     tabs = st.tabs(
         [
-            "Executive overview",
-            "Prior authorization",
+            "Command center",
+            "Work queue",
+            "Prior auth",
             "Provider onboarding",
-            "Revenue cycle readiness",
+            "Revenue cycle",
             "Data quality",
-            "Client reporting metrics",
-            "SQL / modeling",
-            "Methodology & safety",
+            "Analytics layer",
+            "Safety",
         ]
     )
     with tabs[0]:
-        render_executive(pa_f, onb_f, claims_f)
+        render_command_center(pa_f, onb_f, claims_f, work_queue)
     with tabs[1]:
-        render_prior_auth(pa_f)
+        render_work_queue(work_queue)
     with tabs[2]:
-        render_onboarding(onb_f)
+        render_prior_auth(pa_f)
     with tabs[3]:
-        render_revenue_cycle(claims_f)
+        render_onboarding(onb_f)
     with tabs[4]:
-        render_data_quality(pa_f, onb_f, claims_f)
+        render_revenue_cycle(claims_f)
     with tabs[5]:
-        render_metrics_tab()
+        render_data_quality(pa_f, onb_f, claims_f)
     with tabs[6]:
-        render_sql_tab()
+        render_analytics_layer()
     with tabs[7]:
-        render_methodology()
+        render_safety()
 
 
 if __name__ == "__main__":

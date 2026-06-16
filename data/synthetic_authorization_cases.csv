@@ -1,91 +1,91 @@
 case_id,clinic_id,payer_type,diagnosis,medication,authorization_type,readiness_status,missing_field_count,failed_blocker_count,review_required_count,confidence_band,days_to_ready,data_completeness_score,top_missing_field,owner_team,synthetic_only_flag
-PA_0001,CLINIC_07,medicare_adv_mock,ulcerative_colitis,infliximab,reauthorization,BLOCKED,1,0,1,medium,24,0.86,provider_specialty,Coding,True
-PA_0002,CLINIC_03,medicaid_mock,ulcerative_colitis,etanercept,reauthorization,NEEDS REVIEW,0,0,0,high,9,0.73,none,Billing,True
-PA_0003,CLINIC_06,medicaid_mock,crohns_disease,adalimumab,reauthorization,NEEDS REVIEW,0,0,0,high,20,0.83,none,Payer Relations,True
-PA_0004,CLINIC_08,medicaid_mock,psoriasis,etanercept,reauthorization,BLOCKED,1,2,0,high,27,0.7,none,QA,True
-PA_0005,CLINIC_08,medicare_adv_mock,psoriasis,infliximab,initial_authorization,READY,0,0,0,high,0,0.91,none,Coding,True
-PA_0006,CLINIC_05,commercial,ulcerative_colitis,infliximab,initial_authorization,NEEDS REVIEW,0,0,0,medium,11,0.92,none,Credentialing,True
-PA_0007,CLINIC_06,medicare_adv_mock,psoriasis,ustekinumab,initial_authorization,NEEDS REVIEW,0,0,0,high,2,0.79,none,Credentialing,True
-PA_0008,CLINIC_03,medicaid_mock,ulcerative_colitis,adalimumab,reauthorization,NEEDS REVIEW,0,0,2,high,17,0.96,none,Payer Relations,True
-PA_0009,CLINIC_01,commercial,crohns_disease,infliximab,reauthorization,BLOCKED,2,0,0,high,25,0.85,provider_specialty,Payer Relations,True
-PA_0010,CLINIC_05,medicaid_mock,rheumatoid_arthritis,etanercept,reauthorization,BLOCKED,1,2,1,high,21,0.89,none,Intake,True
-PA_0011,CLINIC_04,commercial,rheumatoid_arthritis,adalimumab,reauthorization,READY,0,0,0,high,0,0.93,none,Coding,True
-PA_0012,CLINIC_05,medicaid_mock,ulcerative_colitis,adalimumab,reauthorization,READY,0,0,0,high,0,0.97,none,Billing,True
-PA_0013,CLINIC_02,commercial,crohns_disease,ustekinumab,initial_authorization,BLOCKED,0,2,1,medium,11,0.82,failed_therapy_history,Payer Relations,True
-PA_0014,CLINIC_02,commercial,crohns_disease,infliximab,reauthorization,BLOCKED,1,1,0,high,20,0.88,failed_therapy_history,Credentialing,True
-PA_0015,CLINIC_01,medicaid_mock,crohns_disease,adalimumab,reauthorization,BLOCKED,2,0,1,high,9,0.91,medication,Coding,True
-PA_0016,CLINIC_03,medicare_adv_mock,ulcerative_colitis,adalimumab,initial_authorization,BLOCKED,1,1,1,high,22,0.73,none,Billing,True
-PA_0017,CLINIC_07,medicare_adv_mock,crohns_disease,ustekinumab,reauthorization,READY,0,0,0,high,0,0.94,none,Intake,True
-PA_0018,CLINIC_02,commercial,crohns_disease,ustekinumab,reauthorization,READY,0,0,0,high,0,0.92,none,Credentialing,True
-PA_0019,CLINIC_06,medicaid_mock,rheumatoid_arthritis,etanercept,reauthorization,NEEDS REVIEW,0,0,0,high,13,0.77,none,Credentialing,True
-PA_0020,CLINIC_03,commercial,crohns_disease,etanercept,reauthorization,READY,0,0,0,high,0,0.91,none,Credentialing,True
-PA_0021,CLINIC_04,commercial,rheumatoid_arthritis,ustekinumab,initial_authorization,NEEDS REVIEW,0,0,0,low,26,0.91,none,Billing,True
-PA_0022,CLINIC_03,medicare_adv_mock,psoriasis,etanercept,reauthorization,READY,0,0,0,high,0,1.0,none,Credentialing,True
-PA_0023,CLINIC_05,medicare_adv_mock,rheumatoid_arthritis,etanercept,reauthorization,READY,0,0,0,high,0,0.9,none,QA,True
-PA_0024,CLINIC_08,commercial,rheumatoid_arthritis,ustekinumab,initial_authorization,READY,0,0,0,high,0,0.93,none,QA,True
-PA_0025,CLINIC_04,medicaid_mock,ulcerative_colitis,infliximab,initial_authorization,READY,0,0,0,high,0,0.93,none,Billing,True
-PA_0026,CLINIC_05,medicare_adv_mock,psoriasis,adalimumab,reauthorization,READY,0,0,0,high,0,0.93,none,QA,True
-PA_0027,CLINIC_02,commercial,crohns_disease,infliximab,initial_authorization,READY,1,0,0,high,0,0.93,clinical_note_completeness,Payer Relations,True
-PA_0028,CLINIC_08,medicare_adv_mock,ulcerative_colitis,infliximab,initial_authorization,NEEDS REVIEW,0,0,0,high,3,0.81,none,Billing,True
-PA_0029,CLINIC_04,medicare_adv_mock,crohns_disease,ustekinumab,initial_authorization,READY,0,0,0,high,0,0.9,none,QA,True
-PA_0030,CLINIC_04,medicaid_mock,psoriasis,ustekinumab,initial_authorization,READY,0,0,0,high,0,0.91,none,Intake,True
-PA_0031,CLINIC_02,medicaid_mock,psoriasis,ustekinumab,reauthorization,BLOCKED,2,0,0,medium,6,0.93,provider_specialty,Credentialing,True
-PA_0032,CLINIC_04,medicare_adv_mock,crohns_disease,infliximab,initial_authorization,READY,1,0,0,high,0,0.92,clinical_note_completeness,Credentialing,True
-PA_0033,CLINIC_08,commercial,ulcerative_colitis,ustekinumab,initial_authorization,READY,0,0,0,high,0,0.94,none,Coding,True
-PA_0034,CLINIC_02,medicaid_mock,psoriasis,infliximab,initial_authorization,READY,0,0,0,high,0,0.93,none,Billing,True
-PA_0035,CLINIC_08,medicaid_mock,ulcerative_colitis,etanercept,initial_authorization,READY,0,0,0,high,0,0.99,none,Intake,True
-PA_0036,CLINIC_02,medicare_adv_mock,rheumatoid_arthritis,infliximab,reauthorization,BLOCKED,0,1,0,medium,18,0.77,failed_therapy_history,Coding,True
-PA_0037,CLINIC_01,commercial,psoriasis,infliximab,reauthorization,READY,1,0,0,high,0,0.92,clinical_note_completeness,QA,True
-PA_0038,CLINIC_03,commercial,ulcerative_colitis,adalimumab,initial_authorization,READY,0,0,0,high,0,0.98,none,QA,True
-PA_0039,CLINIC_06,medicaid_mock,rheumatoid_arthritis,etanercept,initial_authorization,NEEDS REVIEW,0,0,0,medium,24,0.92,none,Payer Relations,True
-PA_0040,CLINIC_06,medicare_adv_mock,ulcerative_colitis,infliximab,initial_authorization,BLOCKED,2,0,1,high,15,0.84,authorization_type,QA,True
-PA_0041,CLINIC_02,commercial,crohns_disease,adalimumab,initial_authorization,BLOCKED,1,0,0,high,17,0.71,disease_activity_evidence,QA,True
-PA_0042,CLINIC_03,medicaid_mock,crohns_disease,infliximab,reauthorization,READY,0,0,0,high,0,0.96,none,Payer Relations,True
-PA_0043,CLINIC_08,medicaid_mock,rheumatoid_arthritis,adalimumab,reauthorization,READY,0,0,0,high,0,0.91,none,Intake,True
-PA_0044,CLINIC_08,medicaid_mock,psoriasis,adalimumab,initial_authorization,NEEDS REVIEW,0,0,0,medium,14,0.9,none,Coding,True
-PA_0045,CLINIC_02,medicare_adv_mock,psoriasis,infliximab,reauthorization,NEEDS REVIEW,0,0,0,medium,17,1.0,none,Credentialing,True
-PA_0046,CLINIC_06,medicare_adv_mock,ulcerative_colitis,etanercept,reauthorization,READY,0,0,0,high,0,0.99,none,Billing,True
-PA_0047,CLINIC_02,medicare_adv_mock,crohns_disease,infliximab,reauthorization,BLOCKED,0,2,1,medium,6,0.77,none,QA,True
-PA_0048,CLINIC_07,medicaid_mock,ulcerative_colitis,adalimumab,reauthorization,READY,0,0,0,high,0,0.97,none,Billing,True
-PA_0049,CLINIC_07,medicare_adv_mock,crohns_disease,infliximab,reauthorization,BLOCKED,1,2,1,high,6,0.94,none,Payer Relations,True
-PA_0050,CLINIC_06,medicaid_mock,ulcerative_colitis,ustekinumab,reauthorization,READY,0,0,0,high,0,0.94,none,Credentialing,True
-PA_0051,CLINIC_04,medicaid_mock,psoriasis,adalimumab,reauthorization,READY,0,0,0,high,0,1.0,none,Intake,True
-PA_0052,CLINIC_04,medicaid_mock,psoriasis,infliximab,initial_authorization,NEEDS REVIEW,0,0,0,medium,17,0.91,none,QA,True
-PA_0053,CLINIC_03,commercial,ulcerative_colitis,adalimumab,initial_authorization,NEEDS REVIEW,0,0,0,high,27,0.75,none,Intake,True
-PA_0054,CLINIC_06,medicare_adv_mock,crohns_disease,etanercept,initial_authorization,READY,0,0,0,high,0,0.93,none,Coding,True
-PA_0055,CLINIC_02,medicaid_mock,crohns_disease,etanercept,initial_authorization,READY,0,0,0,high,0,0.97,none,Billing,True
-PA_0056,CLINIC_06,medicare_adv_mock,psoriasis,adalimumab,initial_authorization,READY,0,0,0,high,0,0.98,none,Billing,True
-PA_0057,CLINIC_08,medicaid_mock,ulcerative_colitis,infliximab,initial_authorization,NEEDS REVIEW,0,0,0,high,21,0.83,none,QA,True
-PA_0058,CLINIC_02,commercial,crohns_disease,adalimumab,initial_authorization,NEEDS REVIEW,0,0,1,high,10,0.93,none,QA,True
-PA_0059,CLINIC_02,commercial,rheumatoid_arthritis,adalimumab,reauthorization,BLOCKED,2,0,1,medium,21,0.77,authorization_type,Payer Relations,True
-PA_0060,CLINIC_03,commercial,rheumatoid_arthritis,adalimumab,reauthorization,NEEDS REVIEW,0,0,0,high,14,0.79,none,QA,True
-PA_0061,CLINIC_02,commercial,crohns_disease,etanercept,initial_authorization,READY,0,0,0,high,0,0.99,none,Billing,True
-PA_0062,CLINIC_06,medicare_adv_mock,psoriasis,adalimumab,initial_authorization,READY,1,0,0,high,0,0.94,clinical_note_completeness,Credentialing,True
-PA_0063,CLINIC_07,medicaid_mock,rheumatoid_arthritis,ustekinumab,initial_authorization,BLOCKED,2,0,0,high,9,0.72,medication,Payer Relations,True
-PA_0064,CLINIC_08,commercial,ulcerative_colitis,ustekinumab,reauthorization,BLOCKED,0,2,0,high,5,0.86,clinical_note_completeness,Coding,True
-PA_0065,CLINIC_05,commercial,rheumatoid_arthritis,etanercept,initial_authorization,READY,0,0,0,high,0,0.91,none,Credentialing,True
-PA_0066,CLINIC_03,medicare_adv_mock,psoriasis,adalimumab,reauthorization,BLOCKED,2,0,1,high,17,0.8,provider_specialty,Credentialing,True
-PA_0067,CLINIC_02,medicaid_mock,rheumatoid_arthritis,ustekinumab,initial_authorization,BLOCKED,0,2,0,high,9,0.88,clinical_note_completeness,Coding,True
-PA_0068,CLINIC_02,medicaid_mock,psoriasis,ustekinumab,initial_authorization,BLOCKED,1,1,1,medium,13,0.81,clinical_note_completeness,Payer Relations,True
-PA_0069,CLINIC_04,medicaid_mock,crohns_disease,adalimumab,initial_authorization,BLOCKED,2,0,0,high,24,0.77,diagnosis,QA,True
-PA_0070,CLINIC_05,medicare_adv_mock,rheumatoid_arthritis,infliximab,reauthorization,READY,0,0,0,high,0,0.91,none,Credentialing,True
-PA_0071,CLINIC_02,commercial,crohns_disease,infliximab,reauthorization,NEEDS REVIEW,0,0,0,medium,14,0.92,none,Payer Relations,True
-PA_0072,CLINIC_04,medicare_adv_mock,ulcerative_colitis,ustekinumab,reauthorization,BLOCKED,1,1,1,high,12,0.82,clinical_note_completeness,QA,True
-PA_0073,CLINIC_02,medicaid_mock,crohns_disease,ustekinumab,initial_authorization,NEEDS REVIEW,0,0,2,high,9,0.89,none,Credentialing,True
-PA_0074,CLINIC_04,medicaid_mock,ulcerative_colitis,adalimumab,reauthorization,BLOCKED,0,1,0,medium,12,0.9,none,Payer Relations,True
-PA_0075,CLINIC_08,commercial,ulcerative_colitis,etanercept,reauthorization,BLOCKED,0,2,0,medium,20,0.82,clinical_note_completeness,Coding,True
-PA_0076,CLINIC_04,medicare_adv_mock,ulcerative_colitis,infliximab,initial_authorization,READY,1,0,0,high,0,0.99,clinical_note_completeness,Credentialing,True
-PA_0077,CLINIC_01,medicare_adv_mock,rheumatoid_arthritis,adalimumab,reauthorization,NEEDS REVIEW,0,0,0,high,10,0.76,none,Billing,True
-PA_0078,CLINIC_05,medicare_adv_mock,ulcerative_colitis,adalimumab,initial_authorization,BLOCKED,1,1,1,high,27,0.81,failed_therapy_history,Credentialing,True
-PA_0079,CLINIC_07,commercial,rheumatoid_arthritis,ustekinumab,reauthorization,READY,0,0,0,high,0,0.9,none,Intake,True
-PA_0080,CLINIC_07,medicaid_mock,ulcerative_colitis,infliximab,initial_authorization,READY,0,0,0,high,0,0.94,none,Intake,True
-PA_0081,CLINIC_08,commercial,rheumatoid_arthritis,infliximab,initial_authorization,READY,0,0,0,high,0,0.94,none,QA,True
-PA_0082,CLINIC_03,commercial,crohns_disease,ustekinumab,reauthorization,READY,0,0,0,high,0,0.97,none,Credentialing,True
-PA_0083,CLINIC_04,commercial,crohns_disease,infliximab,reauthorization,READY,0,0,0,high,0,0.93,none,Intake,True
-PA_0084,CLINIC_07,commercial,rheumatoid_arthritis,etanercept,initial_authorization,NEEDS REVIEW,0,0,1,high,19,0.93,none,Billing,True
-PA_0085,CLINIC_02,medicaid_mock,rheumatoid_arthritis,ustekinumab,initial_authorization,BLOCKED,1,2,1,high,7,0.71,failed_therapy_history,QA,True
-PA_0086,CLINIC_05,medicaid_mock,crohns_disease,ustekinumab,initial_authorization,NEEDS REVIEW,0,0,0,high,20,0.8,none,Payer Relations,True
-PA_0087,CLINIC_02,commercial,psoriasis,etanercept,initial_authorization,BLOCKED,1,2,1,high,26,0.92,failed_therapy_history,Payer Relations,True
-PA_0088,CLINIC_01,medicare_adv_mock,psoriasis,adalimumab,reauthorization,READY,0,0,0,high,0,0.92,none,QA,True
-PA_0089,CLINIC_04,commercial,crohns_disease,ustekinumab,reauthorization,NEEDS REVIEW,0,0,0,low,18,0.91,none,QA,True
-PA_0090,CLINIC_01,medicaid_mock,rheumatoid_arthritis,ustekinumab,reauthorization,NEEDS REVIEW,0,0,2,high,17,0.93,none,Payer Relations,True
+PA_0001,CLINIC_02,medicare_adv_mock,rheumatoid_arthritis,etanercept,initial_authorization,NEEDS REVIEW,0,0,1,high,2,0.99,none,Billing,True
+PA_0002,CLINIC_07,medicare_adv_mock,psoriasis,infliximab,reauthorization,NEEDS REVIEW,0,0,0,high,6,0.72,none,Billing,True
+PA_0003,CLINIC_01,medicare_adv_mock,crohns_disease,infliximab,reauthorization,NEEDS REVIEW,0,0,0,medium,2,0.96,none,Billing,True
+PA_0004,CLINIC_01,commercial,psoriasis,adalimumab,initial_authorization,READY,0,0,0,high,0,0.96,none,Intake,True
+PA_0005,CLINIC_05,medicare_adv_mock,psoriasis,adalimumab,initial_authorization,READY,0,0,0,high,0,0.92,none,QA,True
+PA_0006,CLINIC_06,commercial,crohns_disease,etanercept,initial_authorization,NEEDS REVIEW,0,0,0,medium,5,1.0,none,Billing,True
+PA_0007,CLINIC_03,medicare_adv_mock,ulcerative_colitis,infliximab,initial_authorization,READY,0,0,0,high,0,0.98,none,QA,True
+PA_0008,CLINIC_06,medicaid_mock,psoriasis,etanercept,initial_authorization,READY,0,0,0,high,0,0.93,none,Intake,True
+PA_0009,CLINIC_04,commercial,crohns_disease,infliximab,reauthorization,READY,1,0,0,high,0,0.97,failed_therapy_history,Coding,True
+PA_0010,CLINIC_03,medicaid_mock,psoriasis,etanercept,reauthorization,BLOCKED,2,0,1,medium,11,0.87,authorization_type,Coding,True
+PA_0011,CLINIC_03,medicare_adv_mock,rheumatoid_arthritis,adalimumab,initial_authorization,NEEDS REVIEW,0,0,0,medium,5,1.0,none,unassigned,True
+PA_0012,CLINIC_04,commercial,rheumatoid_arthritis,etanercept,initial_authorization,READY,0,0,0,high,0,0.95,none,Coding,True
+PA_0013,CLINIC_02,commercial,crohns_disease,ustekinumab,initial_authorization,READY,0,0,0,high,0,0.97,none,QA,True
+PA_0014,CLINIC_08,medicaid_mock,crohns_disease,ustekinumab,reauthorization,BLOCKED,1,0,1,high,14,0.75,authorization_type,Billing,True
+PA_0015,CLINIC_05,commercial,crohns_disease,etanercept,reauthorization,READY,1,0,0,high,0,1.0,failed_therapy_history,QA,True
+PA_0016,CLINIC_06,commercial,crohns_disease,ustekinumab,reauthorization,READY,0,0,0,high,0,0.99,none,QA,True
+PA_0017,CLINIC_08,commercial,psoriasis,infliximab,initial_authorization,NEEDS REVIEW,0,0,0,low,8,0.89,none,unassigned,True
+PA_0018,CLINIC_03,medicare_adv_mock,crohns_disease,etanercept,reauthorization,READY,0,0,0,high,0,0.9,none,Billing,True
+PA_0019,CLINIC_06,medicaid_mock,crohns_disease,etanercept,initial_authorization,NEEDS REVIEW,0,0,0,low,11,0.92,none,Payer Relations,True
+PA_0020,CLINIC_08,medicaid_mock,rheumatoid_arthritis,etanercept,reauthorization,BLOCKED,1,0,0,high,18,0.89,diagnosis,Credentialing,True
+PA_0021,CLINIC_06,medicare_adv_mock,rheumatoid_arthritis,adalimumab,initial_authorization,NEEDS REVIEW,0,0,0,high,10,0.84,none,Credentialing,True
+PA_0022,CLINIC_04,medicaid_mock,psoriasis,adalimumab,initial_authorization,NEEDS REVIEW,0,0,0,high,15,0.72,none,Payer Relations,True
+PA_0023,CLINIC_04,medicare_adv_mock,crohns_disease,adalimumab,reauthorization,READY,0,0,0,high,0,0.97,none,unassigned,True
+PA_0024,CLINIC_02,medicaid_mock,psoriasis,ustekinumab,initial_authorization,READY,0,0,0,high,0,0.97,none,Intake,True
+PA_0025,CLINIC_07,commercial,ulcerative_colitis,etanercept,initial_authorization,NEEDS REVIEW,0,0,0,high,6,0.82,none,Intake,True
+PA_0026,CLINIC_04,medicaid_mock,rheumatoid_arthritis,ustekinumab,initial_authorization,READY,0,0,0,high,0,0.97,none,Intake,True
+PA_0027,CLINIC_06,medicare_adv_mock,psoriasis,infliximab,reauthorization,NEEDS REVIEW,0,0,0,high,13,0.75,none,Credentialing,True
+PA_0028,CLINIC_02,medicaid_mock,psoriasis,infliximab,initial_authorization,BLOCKED,2,0,1,high,26,0.71,authorization_type,Billing,True
+PA_0029,CLINIC_04,medicare_adv_mock,psoriasis,ustekinumab,initial_authorization,READY,0,0,0,high,0,1.0,none,unassigned,True
+PA_0030,CLINIC_02,medicare_adv_mock,psoriasis,etanercept,reauthorization,READY,1,0,0,high,0,0.97,clinical_note_completeness,unassigned,True
+PA_0031,CLINIC_03,medicaid_mock,rheumatoid_arthritis,etanercept,initial_authorization,BLOCKED,2,0,1,high,12,0.84,medication,Billing,True
+PA_0032,CLINIC_07,medicaid_mock,rheumatoid_arthritis,etanercept,reauthorization,NEEDS REVIEW,0,0,1,high,9,1.0,none,Billing,True
+PA_0033,CLINIC_03,medicaid_mock,ulcerative_colitis,ustekinumab,reauthorization,NEEDS REVIEW,0,0,2,high,3,0.97,none,Billing,True
+PA_0034,CLINIC_04,medicare_adv_mock,psoriasis,ustekinumab,reauthorization,NEEDS REVIEW,0,0,0,medium,7,0.89,none,unassigned,True
+PA_0035,CLINIC_05,medicare_adv_mock,rheumatoid_arthritis,etanercept,reauthorization,BLOCKED,1,1,1,high,21,0.88,failed_therapy_history,Billing,True
+PA_0036,CLINIC_08,medicaid_mock,ulcerative_colitis,ustekinumab,initial_authorization,NEEDS REVIEW,0,0,2,high,2,0.93,none,Billing,True
+PA_0037,CLINIC_05,commercial,psoriasis,ustekinumab,initial_authorization,BLOCKED,1,0,1,medium,18,0.74,medication,Billing,True
+PA_0038,CLINIC_06,commercial,crohns_disease,etanercept,initial_authorization,READY,0,0,0,high,0,0.91,none,unassigned,True
+PA_0039,CLINIC_08,medicare_adv_mock,rheumatoid_arthritis,infliximab,reauthorization,BLOCKED,1,0,1,high,24,0.91,provider_specialty,Credentialing,True
+PA_0040,CLINIC_06,commercial,ulcerative_colitis,ustekinumab,reauthorization,NEEDS REVIEW,0,0,0,medium,15,0.96,none,Billing,True
+PA_0041,CLINIC_06,medicare_adv_mock,crohns_disease,etanercept,initial_authorization,READY,1,0,0,high,0,0.99,clinical_note_completeness,Intake,True
+PA_0042,CLINIC_01,commercial,crohns_disease,ustekinumab,reauthorization,READY,0,0,0,high,0,1.0,none,Credentialing,True
+PA_0043,CLINIC_04,medicare_adv_mock,psoriasis,adalimumab,initial_authorization,READY,0,0,0,high,0,0.94,none,Intake,True
+PA_0044,CLINIC_06,medicaid_mock,psoriasis,etanercept,initial_authorization,BLOCKED,1,0,0,high,13,0.85,diagnosis,Credentialing,True
+PA_0045,CLINIC_05,commercial,rheumatoid_arthritis,etanercept,reauthorization,BLOCKED,2,0,1,medium,28,0.75,provider_specialty,Billing,True
+PA_0046,CLINIC_03,commercial,ulcerative_colitis,ustekinumab,reauthorization,READY,0,0,0,high,0,1.0,none,QA,True
+PA_0047,CLINIC_02,medicare_adv_mock,psoriasis,etanercept,initial_authorization,READY,0,0,0,high,0,0.96,none,Billing,True
+PA_0048,CLINIC_08,medicare_adv_mock,ulcerative_colitis,ustekinumab,initial_authorization,READY,1,0,0,high,0,0.93,clinical_note_completeness,Payer Relations,True
+PA_0049,CLINIC_03,medicare_adv_mock,rheumatoid_arthritis,adalimumab,reauthorization,READY,1,0,0,high,0,0.88,clinical_note_completeness,Billing,True
+PA_0050,CLINIC_04,medicaid_mock,psoriasis,infliximab,initial_authorization,READY,0,0,0,high,0,0.97,none,Intake,True
+PA_0051,CLINIC_08,commercial,psoriasis,ustekinumab,initial_authorization,BLOCKED,1,1,0,medium,26,0.74,clinical_note_completeness,Credentialing,True
+PA_0052,CLINIC_06,medicare_adv_mock,crohns_disease,etanercept,reauthorization,READY,1,0,0,high,0,0.95,failed_therapy_history,Coding,True
+PA_0053,CLINIC_08,medicaid_mock,rheumatoid_arthritis,infliximab,initial_authorization,NEEDS REVIEW,0,0,1,high,6,0.93,none,Intake,True
+PA_0054,CLINIC_05,medicaid_mock,rheumatoid_arthritis,adalimumab,reauthorization,NEEDS REVIEW,0,0,1,high,6,0.91,none,Coding,True
+PA_0055,CLINIC_03,commercial,ulcerative_colitis,ustekinumab,reauthorization,BLOCKED,0,1,0,high,20,0.81,none,Credentialing,True
+PA_0056,CLINIC_05,commercial,ulcerative_colitis,infliximab,initial_authorization,BLOCKED,1,0,0,high,14,0.72,medication,Payer Relations,True
+PA_0057,CLINIC_03,medicaid_mock,crohns_disease,adalimumab,reauthorization,READY,0,0,0,high,0,0.95,none,unassigned,True
+PA_0058,CLINIC_05,medicare_adv_mock,rheumatoid_arthritis,adalimumab,reauthorization,NEEDS REVIEW,0,0,0,high,9,0.71,none,QA,True
+PA_0059,CLINIC_07,commercial,crohns_disease,adalimumab,reauthorization,READY,1,0,0,high,0,0.97,clinical_note_completeness,QA,True
+PA_0060,CLINIC_04,commercial,psoriasis,infliximab,initial_authorization,READY,0,0,0,high,0,0.97,none,Payer Relations,True
+PA_0061,CLINIC_03,medicaid_mock,crohns_disease,ustekinumab,reauthorization,READY,0,0,0,high,0,0.94,none,Coding,True
+PA_0062,CLINIC_02,medicaid_mock,psoriasis,adalimumab,reauthorization,READY,0,0,0,high,0,1.0,none,Intake,True
+PA_0063,CLINIC_07,commercial,rheumatoid_arthritis,adalimumab,reauthorization,NEEDS REVIEW,0,0,1,high,4,1.0,none,Credentialing,True
+PA_0064,CLINIC_02,medicare_adv_mock,rheumatoid_arthritis,infliximab,initial_authorization,READY,0,0,0,high,0,0.92,none,unassigned,True
+PA_0065,CLINIC_08,medicare_adv_mock,crohns_disease,infliximab,reauthorization,NEEDS REVIEW,0,0,1,high,11,0.94,none,Credentialing,True
+PA_0066,CLINIC_07,commercial,crohns_disease,ustekinumab,initial_authorization,READY,0,0,0,high,0,0.95,none,Credentialing,True
+PA_0067,CLINIC_01,commercial,rheumatoid_arthritis,etanercept,initial_authorization,READY,0,0,0,high,0,0.94,none,unassigned,True
+PA_0068,CLINIC_04,medicaid_mock,psoriasis,ustekinumab,reauthorization,READY,0,0,0,high,0,0.94,none,Coding,True
+PA_0069,CLINIC_04,medicare_adv_mock,crohns_disease,adalimumab,initial_authorization,BLOCKED,1,1,1,high,27,0.94,none,Billing,True
+PA_0070,CLINIC_04,commercial,ulcerative_colitis,adalimumab,initial_authorization,READY,0,0,0,high,0,0.96,none,Intake,True
+PA_0071,CLINIC_04,medicare_adv_mock,ulcerative_colitis,etanercept,initial_authorization,READY,0,0,0,high,0,0.97,none,QA,True
+PA_0072,CLINIC_01,medicare_adv_mock,ulcerative_colitis,ustekinumab,reauthorization,NEEDS REVIEW,0,0,0,medium,2,0.93,none,unassigned,True
+PA_0073,CLINIC_04,commercial,crohns_disease,adalimumab,reauthorization,READY,0,0,0,high,0,0.93,none,Coding,True
+PA_0074,CLINIC_01,medicaid_mock,psoriasis,infliximab,initial_authorization,READY,0,0,0,high,0,0.93,none,Payer Relations,True
+PA_0075,CLINIC_01,medicaid_mock,crohns_disease,adalimumab,initial_authorization,READY,0,0,0,high,0,0.98,none,Billing,True
+PA_0076,CLINIC_05,medicaid_mock,rheumatoid_arthritis,infliximab,initial_authorization,READY,0,0,0,high,0,0.99,none,Billing,True
+PA_0077,CLINIC_02,medicaid_mock,crohns_disease,infliximab,reauthorization,NEEDS REVIEW,0,0,0,medium,12,0.95,none,Billing,True
+PA_0078,CLINIC_08,commercial,psoriasis,etanercept,initial_authorization,NEEDS REVIEW,0,0,0,medium,4,0.9,none,unassigned,True
+PA_0079,CLINIC_06,commercial,rheumatoid_arthritis,infliximab,reauthorization,BLOCKED,2,0,1,high,18,0.77,diagnosis,Coding,True
+PA_0080,CLINIC_06,commercial,crohns_disease,ustekinumab,reauthorization,READY,0,0,0,high,0,0.91,none,Coding,True
+PA_0081,CLINIC_06,commercial,ulcerative_colitis,infliximab,reauthorization,NEEDS REVIEW,0,0,0,high,13,0.81,none,Payer Relations,True
+PA_0082,CLINIC_02,medicaid_mock,ulcerative_colitis,etanercept,initial_authorization,BLOCKED,1,2,1,medium,25,0.8,clinical_note_completeness,Billing,True
+PA_0083,CLINIC_06,medicaid_mock,crohns_disease,ustekinumab,initial_authorization,BLOCKED,0,1,1,medium,26,0.9,none,Billing,True
+PA_0084,CLINIC_06,commercial,psoriasis,ustekinumab,reauthorization,READY,0,0,0,high,0,0.94,none,Billing,True
+PA_0085,CLINIC_06,medicaid_mock,psoriasis,ustekinumab,reauthorization,READY,0,0,0,high,0,0.96,none,Payer Relations,True
+PA_0086,CLINIC_06,medicare_adv_mock,rheumatoid_arthritis,infliximab,reauthorization,READY,0,0,0,high,0,0.99,none,Credentialing,True
+PA_0087,CLINIC_06,medicaid_mock,rheumatoid_arthritis,infliximab,reauthorization,READY,0,0,0,high,0,1.0,none,Coding,True
+PA_0088,CLINIC_07,commercial,rheumatoid_arthritis,ustekinumab,reauthorization,NEEDS REVIEW,0,0,0,high,5,0.77,none,QA,True
+PA_0089,CLINIC_06,medicaid_mock,ulcerative_colitis,ustekinumab,initial_authorization,BLOCKED,1,2,0,high,21,0.94,failed_therapy_history,Coding,True
+PA_0090,CLINIC_05,medicare_adv_mock,ulcerative_colitis,ustekinumab,initial_authorization,NEEDS REVIEW,0,0,1,high,2,0.91,none,Billing,True

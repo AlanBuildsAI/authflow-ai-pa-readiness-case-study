@@ -1,10 +1,10 @@
-# AuthFlow AI / Plenara — Portfolio Case Study
+# AuthFlow AI / Plenara — Public Case Study
 
 ## One-line Summary
 
 AuthFlow AI, externally positioned as Plenara, is a synthetic-data healthcare workflow prototype that turns unstructured prior authorization inputs into structured, readiness-aware outputs using Python, JSON-style contracts, validation rules, and explainable review states.
 
-> This project is a portfolio and design-partner research prototype only. It uses synthetic/mock data. It does not process real PHI or real patient data.
+> This project is a public case study and design-partner research prototype only. It uses synthetic/mock data. It does not process real PHI or real patient data.
 
 ---
 
@@ -48,9 +48,9 @@ Current readiness states:
 
 ---
 
-## What This Demonstrates for Data / Automation Roles
+## What This Demonstrates
 
-This project demonstrates practical skills relevant to data analyst, data quality, operations analyst, business analyst, healthcare operations, and workflow automation roles:
+This workflow analytics demo shows practical capabilities across data structuring, data quality, healthcare operations, and workflow automation:
 
 - Structuring messy information into reliable data models
 - Building validation logic and readiness checks
@@ -79,7 +79,7 @@ Production use would require HIPAA-compliant infrastructure, BAAs, audit logging
 
 ## Current Status
 
-Recruiter-safe public case study. Built to explain the project clearly without exposing private development code, internal artifacts, or sensitive information.
+Public-safe case study. Built to explain the project clearly without exposing private development code, internal artifacts, or sensitive information.
 
 ---
 

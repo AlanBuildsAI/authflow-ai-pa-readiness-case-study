@@ -1,6 +1,6 @@
 # Future Demo Plan
 
-This document outlines how the public AuthFlow AI / Plenara case study can become a polished recruiter-facing demo.
+This document outlines how the public AuthFlow AI / Plenara case study can become a polished, stakeholder-facing public demo.
 
 ## Goal
 

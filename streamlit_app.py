@@ -18,9 +18,12 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-_SRC = Path(__file__).resolve().parent / "src"
-if str(_SRC) not in sys.path:
-    sys.path.insert(0, str(_SRC))
+# Ensure the local `src/` package directory is importable on hosts (e.g.
+# Streamlit Cloud) that do not install the package or put src/ on sys.path.
+ROOT = Path(__file__).resolve().parent
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
 
 import pandas as pd
 import streamlit as st

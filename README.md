@@ -41,9 +41,47 @@ with a regulated-domain safety mindset throughout.
 
 ## Live demo
 
-A local Streamlit app drives all three modules. See
-[How to run locally](#how-to-run-locally). The app is offline-first and runs
-entirely on bundled synthetic data; no hosted URL is published here.
+**https://plenara-healthops.streamlit.app**
+
+The app is offline-first and runs entirely on bundled synthetic data — no PHI,
+no integrations, and no network calls at runtime. You can also
+[run it locally](#how-to-run-locally).
+
+## Product-style demo flow
+
+The app is organized as an operations **command center**, not a generic
+dashboard. It is built to answer, within about ten seconds: what is blocked, why,
+who owns it, what to do next, what is aging, which workflow has the most friction,
+and what the team should prioritize today.
+
+- **Command center** — five headline KPIs (critical blockers, aging claims 60+,
+  unassigned work items, synthetic revenue at risk, overall readiness rate) plus a
+  prioritized **Top actions for today** list (module · issue · why it matters ·
+  recommended next action · affected records · synthetic impact).
+- **Unified work queue** — one prioritized queue across all three workflows with a
+  severity, owner, age, blocker category, and a deterministic recommended action.
+- **Module readiness views** — prior auth, provider onboarding, and revenue cycle,
+  each showing status, blockers, recommended next action, and what would make a
+  record READY.
+- **Analytics layer** — metric definitions, the dbt-style SQL models, and a data
+  model summary (the technical proof, kept below the operational views).
+- **Safety** — synthetic-only boundaries stated plainly.
+
+A sidebar **scenario** selector switches the synthetic operating posture
+(stable operations, moderate backlog, high-friction payer environment, onboarding
+surge, RCM cleanup queue).
+
+## Domain calibration
+
+The synthetic data is *designed* to feel credible to a prior authorization
+manager, RCM/billing manager, clinic operations manager, or healthcare data
+analyst — and to stay honest. Some clinics and payers carry more friction than
+others, aging correlates with review/blocked states, synthetic revenue at risk
+concentrates in aged blocked claims, and blocked items are always owned. The
+numbers are **synthetic scenario design, not real benchmarks and not observed
+impact**, and there are no real claims or payer data. Full notes, terminology,
+KPI interpretation, and the "what would look suspicious to a real operator"
+checklist are in [`docs/domain_calibration.md`](docs/domain_calibration.md).
 
 ---
 
@@ -152,11 +190,13 @@ src/plenara/
   readiness.py           # prior authorization readiness engine
   provider_onboarding.py # provider/clinic/payer onboarding readiness engine
   claims_readiness.py    # diagnostic/lab revenue cycle readiness engine
+  scenarios.py           # synthetic operating-posture scenario profiles
+  workqueue.py           # unified cross-module work queue + top actions
   metrics.py             # client-reporting metrics
   data_quality.py        # data-quality + synthetic-safety checks
-  reporting.py           # KPI summaries, explanations, work queues
+  reporting.py           # command-center KPIs, explanations, work queues
   sample_data.py         # deterministic synthetic dataset generators + loaders
-streamlit_app.py         # polished multi-module dashboard
+streamlit_app.py         # command-center multi-module app
 analytics/               # metric_definitions.yml + sql/ modeling layer
 data/                    # bundled synthetic CSVs + data dictionary
 tests/                   # pytest suite

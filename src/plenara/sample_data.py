@@ -7,6 +7,12 @@ through the matching readiness engine, so the readiness columns in the datasets
 are always consistent with the rules in :mod:`plenara.readiness`,
 :mod:`plenara.provider_onboarding`, and :mod:`plenara.claims_readiness`.
 
+Realism is *designed*, not random: some clinics and payers carry more friction,
+some owner teams carry more backlog, aging correlates with non-ready states, and
+synthetic revenue at risk concentrates in aged, blocked claims. These are
+synthetic scenario-design choices — not industry benchmarks. See
+``docs/domain_calibration.md`` and :mod:`plenara.scenarios`.
+
 Safety:
 - No PHI, no real patients, providers, clinics, payers, claims, or reimbursement.
 - All names/IDs are mock and every row carries ``synthetic_only_flag = True``.
@@ -22,6 +28,7 @@ import pandas as pd
 from .claims_readiness import aging_bucket, evaluate_claim_readiness
 from .provider_onboarding import evaluate_provider_onboarding
 from .readiness import evaluate_pa_case
+from .scenarios import DEFAULT_SCENARIO, get_scenario
 
 # Repo-root/data — resolved relative to this file so it works from any CWD.
 DATA_DIR = Path(__file__).resolve().parents[2] / "data"
@@ -43,6 +50,8 @@ PAYERS_MOCK = [
 ]
 PLAN_TYPES = ["PPO", "HMO", "EPO", "POS", "Medicaid (mock)", "Medicare Adv (mock)"]
 OWNER_TEAMS = ["Intake", "Credentialing", "Coding", "Billing", "Payer Relations", "QA"]
+# Teams that synthetically carry more backlog (non-ready work concentrates here).
+BACKLOG_TEAMS = ["Billing", "Credentialing"]
 SPECIALTIES = [
     "Rheumatology",
     "Gastroenterology",
@@ -52,36 +61,81 @@ SPECIALTIES = [
     "Laboratory Medicine",
 ]
 
+# Designed friction by clinic and payer (synthetic, not benchmarks). Positive =
+# more difficulty (more review/blocked); negative = cleaner.
+CLINIC_FRICTION = {
+    "CLINIC_01": -0.10,
+    "CLINIC_02": -0.06,
+    "CLINIC_03": 0.00,
+    "CLINIC_04": 0.00,
+    "CLINIC_05": 0.06,
+    "CLINIC_06": 0.12,
+    "CLINIC_07": 0.18,
+    "CLINIC_08": 0.24,
+}
+PAYER_FRICTION = {
+    "MockHealth PPO": -0.05,
+    "Synthetic Mutual": 0.00,
+    "Example Care HMO": 0.06,
+    "Demo Health Plan": 0.02,
+    "Sample State Medicaid (mock)": 0.18,
+    "Placeholder Medicare Adv (mock)": 0.12,
+}
+
+PROFILES = ["clean", "minor", "major"]
+
 
 def _rng(seed: int) -> np.random.Generator:
     return np.random.default_rng(seed)
 
 
+def _resolve_mix(base: list[float], friction: float) -> list[float]:
+    """Shift a (clean, minor, major) mix by a friction value.
+
+    Positive friction moves probability mass from clean -> minor/major; negative
+    friction does the reverse. Returns a normalized 3-element probability list.
+    """
+    clean, minor, major = base
+    f = max(-0.30, min(0.40, friction))
+    if f >= 0:
+        new_clean = max(0.05, clean - f)
+        moved = clean - new_clean
+        new_minor = minor + moved * 0.4
+        new_major = major + moved * 0.6
+    else:
+        new_clean = min(0.92, clean - f)  # f<0 -> clean grows
+        added = new_clean - clean
+        new_minor = max(0.03, minor - added * 0.4)
+        new_major = max(0.03, major - added * 0.6)
+    total = new_clean + new_minor + new_major
+    return [new_clean / total, new_minor / total, new_major / total]
+
+
+def _pick_owner(rng: np.random.Generator, status: str, allow_unassigned: bool) -> str:
+    """Choose an owner team. Non-ready work concentrates in backlog teams;
+    a minority of non-blocked work may be unassigned (a real DQ problem to surface).
+    Blocked work is always owned (an enforced data-quality invariant)."""
+    if allow_unassigned and status != "BLOCKED" and rng.random() < 0.12:
+        return "unassigned"
+    if status != "READY" and rng.random() < 0.5:
+        return str(rng.choice(BACKLOG_TEAMS))
+    return str(rng.choice(OWNER_TEAMS))
+
+
 # ===========================================================================
 # A. Prior Authorization Readiness
 # ===========================================================================
-PA_DIAGNOSES = [
-    "rheumatoid_arthritis",
-    "crohns_disease",
-    "psoriasis",
-    "ulcerative_colitis",
-]
+PA_DIAGNOSES = ["rheumatoid_arthritis", "crohns_disease", "psoriasis", "ulcerative_colitis"]
 PA_MEDICATIONS = ["adalimumab", "infliximab", "ustekinumab", "etanercept"]
 PA_AUTH_TYPES = ["initial_authorization", "reauthorization"]
 PA_PAYER_TYPES = ["commercial", "medicaid_mock", "medicare_adv_mock"]
-PA_CONFIDENCE_BANDS = ["high", "high", "high", "medium", "low"]
-PA_MISSING_FIELDS = [
-    "none",
-    "disease_activity_evidence",
-    "failed_therapy_history",
-    "provider_specialty",
-    "clinical_note_completeness",
+PA_CRITICAL_MISSING = [
     "diagnosis",
     "medication",
+    "authorization_type",
+    "disease_activity_evidence",
+    "provider_specialty",
 ]
-
-
-PA_CRITICAL_MISSING = ["diagnosis", "medication", "authorization_type", "disease_activity_evidence", "provider_specialty"]
 PA_NONCRITICAL_MISSING = ["failed_therapy_history", "clinical_note_completeness"]
 
 
@@ -126,47 +180,44 @@ def _pa_inputs(rng: np.random.Generator, profile: str) -> dict:
     }
 
 
-def generate_authorization_cases(n: int = 90, seed: int = 20240601) -> pd.DataFrame:
+def generate_authorization_cases(n: int = 90, seed: int = 20240601, scenario: str = DEFAULT_SCENARIO) -> pd.DataFrame:
     rng = _rng(seed)
+    base_mix = get_scenario(scenario).mix()
     rows = []
-    profiles = rng.choice(["clean", "minor", "major"], size=n, p=[0.4, 0.33, 0.27])
     for i in range(1, n + 1):
-        case = _pa_inputs(rng, str(profiles[i - 1]))
-        failed_blockers = case["failed_blocker_count"]
-        missing_count = case["missing_field_count"]
-        top_missing = case["top_missing_field"]
-        confidence = case["confidence_band"]
-        review_required = case["review_required_count"]
-        completeness = case["data_completeness_score"]
+        clinic = str(rng.choice(CLINICS))
+        payer_type = str(rng.choice(PA_PAYER_TYPES))
+        friction = CLINIC_FRICTION.get(clinic, 0.0)
+        profile = str(rng.choice(PROFILES, p=_resolve_mix(base_mix, friction)))
 
-        _case = {
-            "failed_blocker_count": failed_blockers,
-            "missing_field_count": missing_count,
-            "top_missing_field": top_missing,
-            "confidence_band": confidence,
-            "review_required_count": review_required,
-            "data_completeness_score": completeness,
-        }
-        result = evaluate_pa_case(_case)
-        days_to_ready = 0 if result.status == "READY" else int(rng.integers(2, 28))
+        case = _pa_inputs(rng, profile)
+        result = evaluate_pa_case(case)
+        status = result.status
+        # Aging correlates with non-ready: ready=0, review small, blocked larger.
+        if status == "READY":
+            days_to_ready = 0
+        elif status == "NEEDS REVIEW":
+            days_to_ready = int(rng.integers(2, 16))
+        else:
+            days_to_ready = int(rng.integers(8, 30))
 
         rows.append(
             {
                 "case_id": f"PA_{i:04d}",
-                "clinic_id": str(rng.choice(CLINICS)),
-                "payer_type": str(rng.choice(PA_PAYER_TYPES)),
+                "clinic_id": clinic,
+                "payer_type": payer_type,
                 "diagnosis": str(rng.choice(PA_DIAGNOSES)),
                 "medication": str(rng.choice(PA_MEDICATIONS)),
                 "authorization_type": str(rng.choice(PA_AUTH_TYPES)),
-                "readiness_status": result.status,
-                "missing_field_count": missing_count,
-                "failed_blocker_count": failed_blockers,
-                "review_required_count": review_required,
-                "confidence_band": confidence,
+                "readiness_status": status,
+                "missing_field_count": case["missing_field_count"],
+                "failed_blocker_count": case["failed_blocker_count"],
+                "review_required_count": case["review_required_count"],
+                "confidence_band": case["confidence_band"],
                 "days_to_ready": days_to_ready,
-                "data_completeness_score": completeness,
-                "top_missing_field": top_missing,
-                "owner_team": str(rng.choice(OWNER_TEAMS)),
+                "data_completeness_score": case["data_completeness_score"],
+                "top_missing_field": case["top_missing_field"],
+                "owner_team": _pick_owner(rng, status, allow_unassigned=True),
                 "synthetic_only_flag": True,
             }
         )
@@ -176,14 +227,7 @@ def generate_authorization_cases(n: int = 90, seed: int = 20240601) -> pd.DataFr
 # ===========================================================================
 # B. Provider / Clinic / Insurance Onboarding Readiness
 # ===========================================================================
-ONBOARDING_STAGES = [
-    "intake",
-    "credentialing",
-    "payer_enrollment",
-    "directory_update",
-    "go_live",
-]
-
+ONBOARDING_STAGES = ["intake", "credentialing", "payer_enrollment", "directory_update", "go_live"]
 
 _ONB_GOOD = {
     "credentialing_status": "complete",
@@ -196,7 +240,6 @@ _ONB_GOOD = {
     "license_status": "verified",
     "effective_date_status": "set",
 }
-# Field -> a blocking bad value (used for "major" profile).
 _ONB_BLOCKERS = {
     "credentialing_status": "missing",
     "contract_status": "not_active",
@@ -214,7 +257,6 @@ def _onboarding_statuses(rng: np.random.Generator, profile: str) -> dict[str, st
         field = str(rng.choice(list(_ONB_BLOCKERS)))
         statuses[field] = _ONB_BLOCKERS[field]
     elif profile == "minor":
-        # A soft, review-level signal that does not block.
         choice = str(rng.choice(["caqh", "documentation", "credentialing", "contract"]))
         if choice == "caqh":
             statuses["caqh_status"] = "stale"
@@ -227,38 +269,43 @@ def _onboarding_statuses(rng: np.random.Generator, profile: str) -> dict[str, st
     return statuses
 
 
-def generate_provider_onboarding(n: int = 120, seed: int = 20240602) -> pd.DataFrame:
+def generate_provider_onboarding(n: int = 120, seed: int = 20240602, scenario: str = DEFAULT_SCENARIO) -> pd.DataFrame:
     rng = _rng(seed)
+    base_mix = get_scenario(scenario).mix()
     first = ["Alex", "Jordan", "Casey", "Riley", "Morgan", "Taylor", "Jamie", "Avery", "Quinn", "Drew"]
     last = ["Stone", "Rivers", "Bell", "Hart", "Frost", "Vale", "Reed", "Marsh", "Cole", "Pike"]
     rows = []
-    profiles = rng.choice(["clean", "minor", "major"], size=n, p=[0.4, 0.33, 0.27])
     for i in range(1, n + 1):
-        profile = str(profiles[i - 1])
+        clinic = str(rng.choice(CLINICS))
+        payer = str(rng.choice(PAYERS_MOCK))
+        friction = CLINIC_FRICTION.get(clinic, 0.0) + PAYER_FRICTION.get(payer, 0.0)
+        profile = str(rng.choice(PROFILES, p=_resolve_mix(base_mix, friction)))
         statuses = _onboarding_statuses(rng, profile)
-        # Aging: only "minor" rows risk an aging stage; clean rows stay fresh.
+
+        # Aging: non-ready records skew older; backlog teams carry the aged work.
         if profile == "clean":
-            days_in_stage = int(rng.integers(1, 25))
+            days_in_stage = int(rng.integers(1, 22))
         elif profile == "minor":
-            days_in_stage = int(rng.integers(5, 60))
+            days_in_stage = int(rng.integers(10, 70))
         else:
-            days_in_stage = int(rng.integers(3, 75))
-        owner = str(rng.choice(OWNER_TEAMS)) if profile != "minor" else str(
-            rng.choice(OWNER_TEAMS + ["unassigned"], p=[0.16, 0.16, 0.16, 0.16, 0.16, 0.1, 0.1])
-        )
-        # Synthetic readiness score loosely correlated with cleanliness of statuses.
+            days_in_stage = int(rng.integers(15, 90))
+
+        # Owner chosen before evaluation (unassigned -> review is intended). Only
+        # non-major rows may be unassigned, keeping blocked records owned.
+        if profile == "major":
+            owner = str(rng.choice(BACKLOG_TEAMS)) if rng.random() < 0.5 else str(rng.choice(OWNER_TEAMS))
+        elif profile == "minor":
+            owner = str(rng.choice(OWNER_TEAMS + ["unassigned"], p=[0.15, 0.15, 0.15, 0.18, 0.15, 0.10, 0.12]))
+        else:
+            owner = str(rng.choice(OWNER_TEAMS))
+
         clean = sum(
             v in {"complete", "active", "updated", "enrolled", "current", "verified", "set"}
             for v in statuses.values()
         )
         score = round(min(1.0, max(0.2, clean / 9 + float(rng.uniform(-0.05, 0.05)))), 2)
 
-        record = {
-            **statuses,
-            "days_in_stage": days_in_stage,
-            "owner_team": owner,
-            "readiness_score": score,
-        }
+        record = {**statuses, "days_in_stage": days_in_stage, "owner_team": owner, "readiness_score": score}
         result = evaluate_provider_onboarding(record)
 
         rows.append(
@@ -266,9 +313,9 @@ def generate_provider_onboarding(n: int = 120, seed: int = 20240602) -> pd.DataF
                 "provider_id": f"PRV_{i:04d}",
                 "provider_name_mock": f"Dr. {rng.choice(first)} {rng.choice(last)} (mock)",
                 "specialty": str(rng.choice(SPECIALTIES)),
-                "clinic_id": str(rng.choice(CLINICS)),
+                "clinic_id": clinic,
                 "clinic_region": str(rng.choice(CLINIC_REGIONS)),
-                "payer_name_mock": str(rng.choice(PAYERS_MOCK)),
+                "payer_name_mock": payer,
                 "insurance_plan_type": str(rng.choice(PLAN_TYPES)),
                 **statuses,
                 "onboarding_stage": str(rng.choice(ONBOARDING_STAGES)),
@@ -304,7 +351,6 @@ TEST_BASE_REVENUE = {
     "genetic_testing": 1200.0,
 }
 
-
 _CLAIM_GOOD = {
     "eligibility_status": "verified",
     "prior_auth_status": "obtained",
@@ -328,37 +374,58 @@ _CLAIM_REVIEWS = {
     "payer_rule_status": ["review"],
     "timely_filing_status": ["at_risk"],
 }
+# Fields emphasized by certain scenarios (synthetic design choice).
+_CLAIM_EMPHASIS = {
+    "payer rule failure": "payer_rule_status",
+    "documentation gap": "documentation_status",
+    "eligibility mismatch": "eligibility_status",
+    "timely filing risk": "timely_filing_status",
+}
 
 
-def _claim_statuses(rng: np.random.Generator, profile: str) -> dict[str, str]:
+def _claim_statuses(rng: np.random.Generator, profile: str, emphasis: tuple[str, ...]) -> dict[str, str]:
     statuses = dict(_CLAIM_GOOD)
-    if profile == "major":
-        field = str(rng.choice(list(_CLAIM_BLOCKERS)))
-        statuses[field] = str(rng.choice(_CLAIM_BLOCKERS[field]))
-    elif profile == "minor":
-        field = str(rng.choice(list(_CLAIM_REVIEWS)))
-        statuses[field] = str(rng.choice(_CLAIM_REVIEWS[field]))
+    if profile == "clean":
+        return statuses
+    table = _CLAIM_BLOCKERS if profile == "major" else _CLAIM_REVIEWS
+    # Prefer an emphasized field if the scenario highlights one and it can carry
+    # this severity; otherwise pick any field.
+    emphasized = [
+        _CLAIM_EMPHASIS[e] for e in emphasis if e in _CLAIM_EMPHASIS and _CLAIM_EMPHASIS[e] in table
+    ]
+    if emphasized and rng.random() < 0.6:
+        field = str(rng.choice(emphasized))
+    else:
+        field = str(rng.choice(list(table)))
+    statuses[field] = str(rng.choice(table[field]))
     return statuses
 
 
-def generate_claim_readiness(n: int = 150, seed: int = 20240603) -> pd.DataFrame:
+def generate_claim_readiness(n: int = 150, seed: int = 20240603, scenario: str = DEFAULT_SCENARIO) -> pd.DataFrame:
     rng = _rng(seed)
+    profile_obj = get_scenario(scenario)
+    base_mix = profile_obj.mix()
+    emphasis = profile_obj.blocker_emphasis
     rows = []
-    profiles = rng.choice(["clean", "minor", "major"], size=n, p=[0.45, 0.32, 0.23])
     for i in range(1, n + 1):
-        profile = str(profiles[i - 1])
-        statuses = _claim_statuses(rng, profile)
+        clinic = str(rng.choice(CLINICS))
+        payer = str(rng.choice(PAYERS_MOCK))
+        friction = CLINIC_FRICTION.get(clinic, 0.0) + PAYER_FRICTION.get(payer, 0.0)
+        profile = str(rng.choice(PROFILES, p=_resolve_mix(base_mix, friction)))
+
+        statuses = _claim_statuses(rng, profile, emphasis)
         failed_rule = 1 if statuses["payer_rule_status"] == "fail" else 0
         review_required = int(rng.integers(1, 3)) if profile == "minor" and rng.random() < 0.4 else 0
+        # Completeness and aging both correlate with profile (and therefore status).
         if profile == "clean":
             completeness = round(float(rng.uniform(0.9, 1.0)), 2)
-            days_since_service = int(rng.integers(1, 40))
+            days_since_service = int(rng.integers(1, 30))
         elif profile == "minor":
             completeness = round(float(rng.uniform(0.8, 1.0)), 2)
-            days_since_service = int(rng.integers(1, 60))
+            days_since_service = int(rng.integers(10, 75))
         else:
             completeness = round(float(rng.uniform(0.7, 1.0)), 2)
-            days_since_service = int(rng.integers(1, 120))
+            days_since_service = int(rng.integers(20, 130))
         test_category = str(rng.choice(TEST_CATEGORIES))
 
         claim = {
@@ -369,8 +436,8 @@ def generate_claim_readiness(n: int = 150, seed: int = 20240603) -> pd.DataFrame
             "days_since_service": days_since_service,
         }
         result = evaluate_claim_readiness(claim)
+        status = result.status
 
-        # Synthetic missing-field count derived from blocking/review signals.
         missing_count = sum(
             statuses[k] in bad
             for k, bad in {
@@ -381,33 +448,35 @@ def generate_claim_readiness(n: int = 150, seed: int = 20240603) -> pd.DataFrame
             }.items()
         )
 
-        # Synthetic revenue at risk: base revenue weighted by risk, $0 when clean.
+        # Synthetic revenue at risk: base x risk weight x aging factor; $0 when
+        # the claim is clean (READY). Aged, blocked claims carry the most risk.
         base = TEST_BASE_REVENUE[test_category]
         risk_weight = {"high": 0.9, "medium": 0.4, "low": 0.0}[result.denial_risk_category]
-        revenue_at_risk = round(base * risk_weight, 2)
+        age_factor = 1.0 + min(days_since_service, 120) / 120.0  # 1.0 .. 2.0
+        revenue_at_risk = round(base * risk_weight * (age_factor if status != "READY" else 0.0), 2)
 
         rows.append(
             {
                 "claim_id": f"CLM_{i:05d}",
                 "accession_id_mock": f"ACC_{i:06d}",
                 "lab_order_id_mock": f"ORD_{rng.integers(100000, 999999)}",
-                "clinic_id": str(rng.choice(CLINICS)),
+                "clinic_id": clinic,
                 "clinic_region": str(rng.choice(CLINIC_REGIONS)),
-                "payer_name_mock": str(rng.choice(PAYERS_MOCK)),
+                "payer_name_mock": payer,
                 "plan_type": str(rng.choice(PLAN_TYPES)),
                 "test_category": test_category,
                 "procedure_code_mock": f"MOCK-{rng.integers(80000, 89999)}",
                 "diagnosis_code_mock": f"MOCK-{chr(65 + int(rng.integers(0, 26)))}{rng.integers(10, 99)}",
                 "ordering_provider_specialty": str(rng.choice(SPECIALTIES)),
                 **statuses,
-                "claim_readiness_status": result.status,
+                "claim_readiness_status": status,
                 "denial_risk_category": result.denial_risk_category,
                 "missing_field_count": int(missing_count),
                 "failed_rule_count": failed_rule,
                 "review_required_count": review_required,
                 "days_since_service": days_since_service,
                 "aging_bucket": aging_bucket(days_since_service),
-                "owner_team": str(rng.choice(OWNER_TEAMS)),
+                "owner_team": _pick_owner(rng, status, allow_unassigned=True),
                 "estimated_revenue_at_risk_synthetic": revenue_at_risk,
                 "data_completeness_score": completeness,
                 "synthetic_only_flag": True,
@@ -419,18 +488,26 @@ def generate_claim_readiness(n: int = 150, seed: int = 20240603) -> pd.DataFrame
 # ===========================================================================
 # Materialization + loaders
 # ===========================================================================
-def write_all_datasets() -> dict[str, Path]:
+def generate_all(scenario: str = DEFAULT_SCENARIO) -> dict[str, pd.DataFrame]:
+    """Generate all three datasets in-memory for a given scenario."""
+    return {
+        "authorization": generate_authorization_cases(scenario=scenario),
+        "provider_onboarding": generate_provider_onboarding(scenario=scenario),
+        "claim_readiness": generate_claim_readiness(scenario=scenario),
+    }
+
+
+def write_all_datasets(scenario: str = DEFAULT_SCENARIO) -> dict[str, Path]:
     """(Re)generate all three CSVs into ``data/``. Used to build the repo."""
     DATA_DIR.mkdir(parents=True, exist_ok=True)
-    outputs = {
-        "authorization": (AUTHORIZATION_CSV, generate_authorization_cases()),
-        "provider_onboarding": (PROVIDER_ONBOARDING_CSV, generate_provider_onboarding()),
-        "claim_readiness": (CLAIM_READINESS_CSV, generate_claim_readiness()),
+    frames = generate_all(scenario)
+    paths = {
+        "authorization": AUTHORIZATION_CSV,
+        "provider_onboarding": PROVIDER_ONBOARDING_CSV,
+        "claim_readiness": CLAIM_READINESS_CSV,
     }
-    paths: dict[str, Path] = {}
-    for name, (path, frame) in outputs.items():
-        frame.to_csv(path, index=False)
-        paths[name] = path
+    for name, path in paths.items():
+        frames[name].to_csv(path, index=False)
     return paths
 
 

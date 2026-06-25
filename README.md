@@ -39,13 +39,22 @@ work-queue ownership. The question this lab explores:
 The goal is explainable workflow automation and stakeholder-friendly reporting,
 with a regulated-domain safety mindset throughout.
 
-## Live demo
+## Live demos
 
-**https://plenara-healthops.streamlit.app**
+**Live product prototype:** https://plenara-healthcare-readiness.base44.app
 
-The app is offline-first and runs entirely on bundled synthetic data — no PHI,
-no integrations, and no network calls at runtime. You can also
-[run it locally](#how-to-run-locally).
+**Technical analytics app:** https://plenara-healthops.streamlit.app
+
+The Base44 prototype is the product-style stakeholder demo: landing page,
+operations dashboard, case work queue, provider onboarding, lab-claim review,
+and record-level detail pages. It is designed to show how Plenara could feel as
+a healthcare operations SaaS workflow.
+
+The Streamlit app is the Python/analytics implementation layer: bundled
+synthetic data, deterministic readiness logic, metrics, work queues, scenarios,
+and data-model documentation. It is offline-first and runs entirely on bundled
+synthetic data — no PHI, no integrations, and no network calls at runtime. You
+can also [run it locally](#how-to-run-locally).
 
 ## Product-style demo flow
 
@@ -63,6 +72,9 @@ and what the team should prioritize today.
 - **Module readiness views** — prior auth, provider onboarding, and revenue cycle,
   each showing status, blockers, recommended next action, and what would make a
   record READY.
+- **Product prototype** — a live SaaS-style interface with landing page,
+  operations dashboard, cases, provider onboarding, lab claims, and clickable
+  detail pages using synthetic records only.
 - **Analytics layer** — metric definitions, the dbt-style SQL models, and a data
   model summary (the technical proof, kept below the operational views).
 - **Safety** — synthetic-only boundaries stated plainly.
@@ -143,7 +155,8 @@ Plenara covers **three synthetic readiness workflows** — prior authorization
 readiness, provider onboarding readiness, and revenue cycle / claim readiness —
 each using the same explainable **READY / NEEDS REVIEW / BLOCKED** vocabulary.
 The screenshots below are from the current Streamlit command-center UI on
-synthetic data only.
+synthetic data only. The live Base44 prototype linked above is the polished
+product-style interface for stakeholder walkthroughs.
 
 | Command center | Work queue |
 |---|---|

@@ -1,0 +1,19 @@
+blocker_category,record_count
+aging onboarding task,27
+review required,20
+modifier required,12
+timely filing risk,11
+missing clinical documentation,11
+eligibility mismatch,11
+missing state license verification,9
+payer contract not active,9
+payer documentation incomplete,8
+missing prior authorization,7
+payer criteria not met,7
+payer-specific rule failed,6
+enrollment incomplete,5
+missing credentialing packet,4
+NPI mismatch,4
+provider directory not updated,4
+effective date missing,3
+procedure / diagnosis mismatch,3

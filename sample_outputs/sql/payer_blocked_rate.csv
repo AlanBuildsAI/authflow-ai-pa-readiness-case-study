@@ -1,0 +1,7 @@
+payer,total_records,blocked_records,blocked_rate
+Placeholder Medicare Adv (mock),41,17.0,0.4146
+Sample State Medicaid (mock),45,15.0,0.3333
+Synthetic Mutual,50,14.0,0.28
+Demo Health Plan,48,13.0,0.2708
+Example Care HMO,43,9.0,0.2093
+MockHealth PPO,43,8.0,0.186

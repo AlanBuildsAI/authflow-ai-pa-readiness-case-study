@@ -53,7 +53,10 @@ def test_readme_avoids_overclaiming():
     assert "not approval/denial predictions" in readme
 
 
-@pytest.mark.parametrize("phrase", ["recruiter", "resume", "hiring"])
+# "recruiter" is intentionally allowed: the project is positioned as a portfolio
+# case study with a recruiter/reviewer guide. Genuinely off-tone job-search terms
+# remain forbidden in the product-facing README.
+@pytest.mark.parametrize("phrase", ["resume", "hiring", "job application"])
 def test_readme_omits_non_product_terms(phrase):
     readme = (ROOT / "README.md").read_text().lower()
     assert phrase not in readme

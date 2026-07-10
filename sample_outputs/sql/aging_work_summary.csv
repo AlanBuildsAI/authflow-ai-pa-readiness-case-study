@@ -1,0 +1,5 @@
+aging_bucket,claim_count,blocked_claims,revenue_at_risk_synthetic,avg_days_since_service
+0-30,78,6.0,6577.11,16.6
+31-60,33,7.0,9920.69,46.9
+61-90,27,13.0,7459.84,72.0
+90+,12,12.0,12757.65,114.7

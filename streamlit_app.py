@@ -28,7 +28,7 @@ if str(SRC) not in sys.path:
 import pandas as pd
 import streamlit as st
 
-from plenara import metrics, reporting
+from plenara import executive_insights, metrics, product_story, reporting
 from plenara.claims_readiness import evaluate_claim_readiness
 from plenara.data_quality import (
     run_authorization_checks,
@@ -46,10 +46,7 @@ from plenara.sample_data import (
 from plenara.scenarios import DEFAULT_SCENARIO, SCENARIOS
 from plenara.workqueue import build_unified_work_queue, summarize_top_actions
 
-SAFETY_BANNER = (
-    "Synthetic / mock data only. No PHI, no real patient/provider/payer/claims "
-    "data, no live integrations, no network calls, and no approval/denial prediction."
-)
+SAFETY_BANNER = product_story.SYNTHETIC_SAFETY_NOTE
 ANALYTICS_DIR = Path(__file__).resolve().parent / "analytics"
 STATUS_ICON = {READY: "🟢", NEEDS_REVIEW: "🟡", BLOCKED: "🔴"}
 SEVERITY_ICON = {"High": "🔴", "Medium": "🟡", "Low": "🟢"}
@@ -340,6 +337,61 @@ def render_analytics_layer():
         )
 
 
+def render_product_demo():
+    st.subheader("Product demo — how to read Plenara")
+    st.markdown(f"**{product_story.POSITIONING}**")
+
+    st.markdown("#### Who it is for")
+    st.markdown("\n".join(f"- {u}" for u in product_story.TARGET_USERS))
+
+    st.markdown("#### The operational pain point")
+    st.markdown(
+        "Prior authorization, provider onboarding, and lab-claim work live in "
+        "different systems, spreadsheets, and inboxes. Teams lose time finding what "
+        "is blocked, why, and who owns it. Plenara turns that into one explainable "
+        "readiness picture."
+    )
+
+    st.markdown("#### Three supported workflows")
+    for w in product_story.WORKFLOWS:
+        st.markdown(f"- **{w['name']}** — {w['question']}")
+
+    st.markdown("#### What the readiness labels mean")
+    c = st.columns(3)
+    c[0].success(f"**READY**\n\n{product_story.READINESS_DEFINITIONS['READY']}")
+    c[1].warning(f"**NEEDS REVIEW**\n\n{product_story.READINESS_DEFINITIONS['NEEDS REVIEW']}")
+    c[2].error(f"**BLOCKED**\n\n{product_story.READINESS_DEFINITIONS['BLOCKED']}")
+
+    st.markdown("#### What an operator looks at first")
+    st.markdown("\n".join(f"1. {s}" for s in product_story.OPERATOR_FIRST_LOOK))
+
+    st.info(product_story.HUMAN_IN_THE_LOOP)
+    st.caption(product_story.SYNTHETIC_SAFETY_NOTE)
+
+
+def render_executive_insights(pa_df, onb_df, claims_df):
+    st.subheader("Executive insights")
+    st.caption("Deterministic, data-derived read on the current synthetic scenario.")
+
+    kpis = reporting.command_center_kpis(pa_df, onb_df, claims_df)
+    c = st.columns(5)
+    c[0].metric("Critical blockers", kpis["critical_blockers"])
+    c[1].metric("Aging claims 60+", kpis["aging_claims_60_plus"])
+    c[2].metric("Unassigned work items", kpis["unassigned_work_items"])
+    c[3].metric("Synthetic revenue at risk", _money(kpis["revenue_at_risk_synthetic"]))
+    c[4].metric("Overall readiness rate", _pct(kpis["overall_readiness_rate"]))
+
+    st.markdown("#### Five insights for this scenario")
+    for ins in executive_insights.build_executive_insights(pa_df, onb_df, claims_df):
+        st.markdown(f"- {ins.text}")
+    st.markdown(f"- {executive_insights.aging_work_summary(claims_df).text}")
+
+    st.markdown("#### What to prioritize today")
+    st.markdown(f"➡️ {executive_insights.prioritize_today(pa_df, onb_df, claims_df)}")
+
+    st.info(product_story.SYNTHETIC_SAFETY_NOTE)
+
+
 def render_safety():
     st.subheader("Safety & methodology")
     st.markdown(
@@ -381,10 +433,7 @@ business impact.*
 def main():
     st.set_page_config(page_title="Plenara — Healthcare Operations Readiness Lab", layout="wide")
     st.title("Plenara — Healthcare Operations Readiness Lab")
-    st.caption(
-        "Synthetic operations command center for prior authorization, provider "
-        "onboarding, and diagnostic/lab revenue cycle readiness."
-    )
+    st.caption(product_story.ONE_LINER)
     st.warning(SAFETY_BANNER)
 
     # --- Sidebar ---------------------------------------------------------
@@ -426,7 +475,9 @@ def main():
 
     tabs = st.tabs(
         [
+            "Product demo",
             "Command center",
+            "Executive insights",
             "Work queue",
             "Prior auth",
             "Provider onboarding",
@@ -437,20 +488,24 @@ def main():
         ]
     )
     with tabs[0]:
-        render_command_center(pa_f, onb_f, claims_f, work_queue)
+        render_product_demo()
     with tabs[1]:
-        render_work_queue(work_queue)
+        render_command_center(pa_f, onb_f, claims_f, work_queue)
     with tabs[2]:
-        render_prior_auth(pa_f)
+        render_executive_insights(pa_f, onb_f, claims_f)
     with tabs[3]:
-        render_onboarding(onb_f)
+        render_work_queue(work_queue)
     with tabs[4]:
-        render_revenue_cycle(claims_f)
+        render_prior_auth(pa_f)
     with tabs[5]:
-        render_data_quality(pa_f, onb_f, claims_f)
+        render_onboarding(onb_f)
     with tabs[6]:
-        render_analytics_layer()
+        render_revenue_cycle(claims_f)
     with tabs[7]:
+        render_data_quality(pa_f, onb_f, claims_f)
+    with tabs[8]:
+        render_analytics_layer()
+    with tabs[9]:
         render_safety()
 
 

@@ -4,5 +4,8 @@ pandas>=2.0
 numpy>=1.24
 pyyaml>=6.0
 
+# Analytics: DuckDB SQL portfolio (scripts/run_sql_portfolio.py)
+duckdb>=1.0
+
 # Test dependency (used by CI and local test runs)
 pytest>=7.4

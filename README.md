@@ -11,6 +11,50 @@ quality, metric definitions, and stakeholder reporting.**
 
 ---
 
+## Professional SaaS Prototype Snapshot
+
+**Plenara is a professional synthetic healthcare operations SaaS prototype for
+prior authorization, provider onboarding, and revenue-cycle readiness.** It
+demonstrates how clinics could turn fragmented operational workflows into
+explainable readiness states, blockers, work queues, SQL-backed metrics,
+data-quality checks, and executive dashboards — while preserving clear safety
+boundaries before any real PHI or production deployment.
+
+**Who it's for:** prior authorization managers · revenue cycle / billing
+managers · clinic operations managers · provider onboarding teams · healthcare
+data / operations analysts.
+
+**Roles this project supports:** Data Analyst · Operations Analyst · Data Quality
+Analyst · Business Analyst · Healthcare Operations Analyst · Implementation
+Analyst · Client Reporting Analyst.
+
+**Skills demonstrated:** Python · pandas · SQL · DuckDB · Streamlit · data-quality
+checks · metric definitions · workflow rules · work queues · executive reporting ·
+synthetic-data safety · testing.
+
+**Live demos:**
+[Product prototype](https://plenara-healthcare-readiness.base44.app) ·
+[Analytics app](https://plenara-healthops.streamlit.app)
+
+**Explore:**
+[Product Demo](#product-style-demo-flow) ·
+[Executive Insights](#professional-saas-prototype-snapshot) ·
+[SQL Portfolio](docs/sql_portfolio.md) ·
+[Implementation Case Study](docs/implementation_case_study.md) ·
+[Clinic Demo Script](docs/clinic_demo_script.md) ·
+[Product Strategy](docs/product_strategy.md) ·
+[Commercialization Roadmap](docs/commercialization_roadmap.md) ·
+[Recruiter Review Guide](docs/recruiter_review_guide.md) ·
+[Safety Boundaries](#safety-boundaries) ·
+[How to Run](#how-to-run-locally)
+
+The Streamlit app opens on a **Product demo** tab and includes an **Executive
+insights** tab (five data-derived insights + five KPI cards). A runnable **DuckDB
+SQL portfolio** (`python scripts/run_sql_portfolio.py`) answers eight business
+questions and writes CSVs to [`sample_outputs/sql/`](sample_outputs/sql).
+
+---
+
 ## What Plenara is
 
 Plenara is a synthetic **healthcare operations analytics lab**. It demonstrates

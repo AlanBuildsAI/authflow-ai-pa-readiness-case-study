@@ -1,0 +1,8 @@
+owner_team,non_ready_items,blocked_items,needs_review_items,total_items
+Credentialing,63,36,27,80
+Billing,61,30,31,82
+Coding,25,12,13,47
+QA,22,7,15,46
+Intake,19,3,16,39
+Payer Relations,19,6,13,37
+unassigned,14,0,14,29

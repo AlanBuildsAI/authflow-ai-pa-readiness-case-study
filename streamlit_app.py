@@ -170,7 +170,7 @@ def render_work_queue(work_queue):
     display["severity"] = display["severity"].map(lambda x: f"{SEVERITY_ICON.get(x, '')} {x}")
     display["synthetic_impact"] = display["synthetic_impact"].map(lambda v: _money(v) if v else "—")
     display["age_days"] = display["age_days"].astype(int)
-    st.dataframe(display, use_container_width=True, hide_index=True)
+    st.dataframe(display, width="stretch", hide_index=True)
     st.caption(
         "Severity — High: blocked + aging beyond internal SLA / high synthetic impact / "
         "unassigned owner. Medium: other blocked or needs-review. Low: ready / informational."
@@ -227,7 +227,7 @@ def render_onboarding(onb_df):
     st.caption("Clinic × payer onboarding READY rate")
     matrix = metrics.payer_clinic_ready_rate(onb_df)
     if not matrix.empty:
-        st.dataframe(matrix.style.format("{:.0%}"), use_container_width=True)
+        st.dataframe(matrix.style.format("{:.0%}"), width="stretch")
 
     st.caption("Top blocker categories")
     st.bar_chart(pd.Series(metrics.blocker_category_distribution(onb_df)))
@@ -237,7 +237,7 @@ def render_onboarding(onb_df):
         "first that age into blockers. The queue below is sorted by days in stage."
     )
     st.caption("Blocked + needs-review onboarding queue")
-    st.dataframe(reporting.onboarding_work_queue(onb_df), use_container_width=True, hide_index=True)
+    st.dataframe(reporting.onboarding_work_queue(onb_df), width="stretch", hide_index=True)
 
 
 def render_revenue_cycle(claims_df):
@@ -269,13 +269,13 @@ def render_revenue_cycle(claims_df):
     st.caption("Denial-risk category is a synthetic operational signal derived from data-quality and payer-rule fields — not a denial prediction.")
 
     st.caption("RCM work queue (highest synthetic revenue at risk first)")
-    st.dataframe(reporting.rcm_work_queue(claims_df), use_container_width=True, hide_index=True)
+    st.dataframe(reporting.rcm_work_queue(claims_df), width="stretch", hide_index=True)
 
 
 def _render_checks(title, results):
     st.markdown(f"**{title}**")
     df = pd.DataFrame([r.as_dict() for r in results])
-    st.dataframe(df, use_container_width=True, hide_index=True)
+    st.dataframe(df, width="stretch", hide_index=True)
     if df["passed"].all():
         st.success("All data-quality checks passed.")
     else:
@@ -310,7 +310,7 @@ def render_analytics_layer():
                 {"metric": m["name"], "module": m.get("module", ""), "definition": m.get("definition", "")}
                 for m in defs.get("metrics", [])
             ]
-            st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+            st.dataframe(pd.DataFrame(rows), width="stretch", hide_index=True)
         except Exception:
             st.code(yml.read_text() if yml.exists() else "metric_definitions.yml not found")
 

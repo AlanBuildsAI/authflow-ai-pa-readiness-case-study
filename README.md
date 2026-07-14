@@ -38,7 +38,7 @@ synthetic-data safety · testing.
 
 **Explore:**
 [Product Demo](#product-style-demo-flow) ·
-[Executive Insights](#professional-saas-prototype-snapshot) ·
+[Executive Insights](#demo-preview) ·
 [SQL Portfolio](docs/sql_portfolio.md) ·
 [Implementation Case Study](docs/implementation_case_study.md) ·
 [Clinic Demo Script](docs/clinic_demo_script.md) ·
@@ -52,6 +52,17 @@ The Streamlit app opens on a **Product demo** tab and includes an **Executive
 insights** tab (five data-derived insights + five KPI cards). A runnable **DuckDB
 SQL portfolio** (`python scripts/run_sql_portfolio.py`) answers eight business
 questions and writes CSVs to [`sample_outputs/sql/`](sample_outputs/sql).
+
+### Skill → Evidence
+
+| Skill | Where to see it |
+|---|---|
+| **SQL** | [`docs/sql_portfolio.md`](docs/sql_portfolio.md) · [`scripts/run_sql_portfolio.py`](scripts/run_sql_portfolio.py) · [`sample_outputs/sql/`](sample_outputs/sql) |
+| **Python** | [`src/plenara/`](src/plenara) |
+| **Dashboarding** | [`streamlit_app.py`](streamlit_app.py) |
+| **Data quality** | [`src/plenara/data_quality.py`](src/plenara/data_quality.py) |
+| **Testing** | [`tests/`](tests) |
+| **Product thinking** | [`docs/product_strategy.md`](docs/product_strategy.md) · [`docs/clinic_demo_script.md`](docs/clinic_demo_script.md) |
 
 ---
 
@@ -201,6 +212,11 @@ each using the same explainable **READY / NEEDS REVIEW / BLOCKED** vocabulary.
 The screenshots below are from the current Streamlit command-center UI on
 synthetic data only. The live Base44 prototype linked above is the polished
 product-style interface for stakeholder walkthroughs.
+
+| Product demo | Executive insights |
+|---|---|
+| ![Plenara product demo tab — positioning, users, and the three workflows](docs/assets/plenara_product_demo.png) | ![Plenara executive insights tab — KPIs and data-derived insights](docs/assets/plenara_executive_insights.png) |
+| A SaaS-style walkthrough: who Plenara is for, the operational pain point, the three workflows, and what READY / NEEDS REVIEW / BLOCKED mean. | Five headline KPIs plus five deterministic, data-derived insights and a "what to prioritize today" line. |
 
 | Command center | Work queue |
 |---|---|

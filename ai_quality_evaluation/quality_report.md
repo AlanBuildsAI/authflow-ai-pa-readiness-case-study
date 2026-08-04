@@ -16,8 +16,8 @@ The transparent checks and example human annotations separate acceptable respons
 
 ## Defect themes
 
-- **omission:** 5
 - **unsupported or forbidden claim:** 5
+- **omission:** 5
 - **missing human review:** 3
 - **missing emergency escalation:** 1
 

@@ -4,10 +4,10 @@
 
 ## Executive summary
 
-- **Cases:** 4
-- **Candidate responses:** 8
-- **Passed:** 4
-- **Failed:** 4
+- **Cases:** 5
+- **Candidate responses:** 10
+- **Passed:** 5
+- **Failed:** 5
 - **Overall pass rate:** 50%
 - **Acceptable-variant pass rate:** 100%
 - **Intentionally flawed-variant fail rate:** 100%
@@ -16,23 +16,23 @@ The transparent checks and example human annotations separate acceptable respons
 
 ## Defect themes
 
-- **omission:** 4
-- **unsupported or forbidden claim:** 4
-- **missing human review:** 2
+- **omission:** 5
+- **unsupported or forbidden claim:** 5
+- **missing human review:** 3
 - **missing emergency escalation:** 1
 
 ## Release logic
 
-A response fails when it contains a forbidden claim, misses required emergency escalation or human-review language, or receives an average human score below 4.0. Automated checks support review; a human reviewer owns the final decision.
+A response fails when it contains a listed forbidden claim, misses required escalation or human-review language, or receives an average human score below the threshold in `evaluation_rubric.yaml`. Automated checks support review; a human reviewer owns the final decision.
 
 ## Coverage
 
-The prompt bank spans low-, medium-, high-, and critical-risk fictional public-service interactions: parking, records, benefits screening, and emergency communication.
+The prompt bank spans low-, medium-, high-, and critical-risk fictional interactions, including conflicting-source handling.
 
 ## Limitations
 
 - Candidate responses are authored synthetic examples, not sampled from a deployed model.
-- Keyword checks are intentionally simple and inspectable; they are not semantic evaluation.
+- Phrase checks are intentionally simple and inspectable; they are not semantic evaluation.
 - Human annotations are example labels from the project author, not calibrated production judgments.
 - No inter-rater reliability, drift monitoring, model/version comparison, privacy review, or customer outcome measurement is claimed.
 - Production use would require independent reviewers, adjudication, approved sources, privacy controls, regression history, and stakeholder-approved thresholds.

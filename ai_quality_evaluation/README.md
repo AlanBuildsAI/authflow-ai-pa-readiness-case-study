@@ -12,9 +12,9 @@ The lab turns ambiguous quality expectations into reviewable artifacts:
 - a compact benchmark and golden set;
 - paired acceptable and intentionally flawed candidate responses;
 - example human scores with concise rationale;
-- automated checks for omissions, unsupported claims, safety language, and escalation;
-- a generated results table and quality report;
-- tests that make the evaluation repeatable.
+- automated checks for omissions, unsupported claims, safety language, escalation, and source conflict;
+- generated results and a quality report;
+- tests that verify both evaluation behavior and reproducibility.
 
 It complements the broader [Plenara Healthcare Operations Readiness Lab](../README.md) without changing Plenara's application code, datasets, or readiness rules.
 
@@ -30,19 +30,19 @@ It complements the broader [Plenara Healthcare Operations Readiness Lab](../READ
 
 Each synthetic case includes:
 
-- a user prompt written in realistic language;
-- a source-of-truth passage;
-- expected facts and required safety/escalation behavior;
+- a realistic user prompt;
+- an approved source-of-truth passage;
+- expected facts and required safety or escalation behavior;
 - forbidden or unsupported claims;
-- one acceptable candidate response and one intentionally flawed response;
+- one acceptable response and one intentionally flawed response;
 - example human scores and written rationale.
 
 The evaluator combines two layers:
 
-1. **Transparent automated checks** for required facts, forbidden claims, escalation language, and human-review requirements.
+1. **Transparent automated checks** for required facts, forbidden claims, escalation language, human-review requirements, and source-conflict handling.
 2. **Example human rubric scores** for correctness, completeness, groundedness, safety, and actionability.
 
-Automation does not replace human judgment. It makes routine checks reproducible and exposes disagreements or missing evidence for review.
+The automated decision threshold is loaded from the versioned rubric instead of being duplicated in code. Automation does not replace human judgment; it makes routine checks reproducible and exposes missing evidence for review.
 
 ## Files
 
@@ -66,16 +66,17 @@ python ai_quality_evaluation/evaluate.py
 python -m pytest tests/test_ai_quality_evaluation.py -q
 ```
 
-The evaluator rewrites `evaluation_results.csv` and `quality_report.md` deterministically from the checked-in benchmark.
+The evaluator rewrites `evaluation_results.csv` and `quality_report.md` deterministically from the checked-in rubric and benchmark. The test suite verifies that regenerated files exactly match the committed artifacts.
 
 ## What the lab demonstrates
 
 - translating stakeholder expectations into measurable criteria;
-- defining repeatable scoring guidance;
+- defining repeatable scoring and release guidance;
 - validating answers against explicit source material;
 - detecting omissions and unsupported claims;
 - constructing a small golden set and prompt bank;
-- covering low-, medium-, high-, and critical-risk cases;
+- handling low-, medium-, high-, and critical-risk cases;
+- handling conflicting or stale sources without inventing certainty;
 - documenting reviewer rationale;
 - producing concise quality metrics and defect themes;
 - preserving human-review and escalation boundaries.
@@ -97,8 +98,8 @@ It is adjacent evidence for Data Quality and Business Systems roles, but it is *
 ## Limits
 
 - The candidate responses are authored synthetic examples, not outputs from a deployed model.
-- Keyword checks are intentionally simple and inspectable; they are not semantic evaluation.
+- Phrase checks are intentionally simple and inspectable; they are not semantic evaluation.
 - Human scores are example annotations by the project author, not calibrated production labels.
 - The benchmark is intentionally compact; it demonstrates a framework, not production-scale coverage.
 - The lab does not measure model drift, production latency, user impact, or real customer outcomes.
-- A production program would add independent reviewers, adjudication, inter-rater reliability, approved source repositories, privacy controls, model/version metadata, regression history, and client-approved release thresholds.
+- A production program would add independent reviewers, adjudication, inter-rater reliability, approved source repositories, privacy controls, model/version metadata, regression history, and stakeholder-approved release thresholds.

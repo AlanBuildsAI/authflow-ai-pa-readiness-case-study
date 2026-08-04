@@ -22,8 +22,8 @@ It complements the broader [Plenara Healthcare Operations Readiness Lab](../READ
 
 1. Read [`quality_report.md`](quality_report.md).
 2. Inspect [`evaluation_rubric.yaml`](evaluation_rubric.yaml).
-3. Compare [`data/golden_set.jsonl`](data/golden_set.jsonl) with [`data/candidate_outputs.jsonl`](data/candidate_outputs.jsonl).
-4. Review human scoring in [`data/review_annotations.jsonl`](data/review_annotations.jsonl).
+3. Review the synthetic cases, candidate responses, and human annotations in [`data/benchmark.json`](data/benchmark.json).
+4. Inspect row-level outcomes in [`evaluation_results.csv`](evaluation_results.csv).
 5. Run `python ai_quality_evaluation/evaluate.py` and `python -m pytest tests/test_ai_quality_evaluation.py -q`.
 
 ## Evaluation design
@@ -34,15 +34,16 @@ Each synthetic case includes:
 - a source-of-truth passage;
 - expected facts and required safety/escalation behavior;
 - forbidden or unsupported claims;
-- an ideal response;
-- one acceptable candidate response and one intentionally flawed response.
+- one acceptable response and one intentionally flawed response;
+- human scores for correctness, completeness, groundedness, safety, and actionability;
+- concise reviewer rationale.
 
 The evaluator combines two layers:
 
 1. **Transparent automated checks** for required facts, forbidden claims, escalation language, and human-review requirements.
-2. **Human rubric scores** for correctness, completeness, groundedness, safety, and actionability, each with written rationale.
+2. **Human rubric scores** with written rationale.
 
-Automation does not replace human judgment. It makes routine checks reproducible and exposes disagreements or missing evidence for review.
+Automation does not replace human judgment. It makes routine checks reproducible and exposes missing evidence or unsafe behavior for review.
 
 ## Files
 
@@ -54,9 +55,7 @@ ai_quality_evaluation/
 ├── quality_report.md
 ├── evaluation_results.csv
 └── data/
-    ├── golden_set.jsonl
-    ├── candidate_outputs.jsonl
-    └── review_annotations.jsonl
+    └── benchmark.json
 tests/
 └── test_ai_quality_evaluation.py
 ```
@@ -68,7 +67,7 @@ python ai_quality_evaluation/evaluate.py
 python -m pytest tests/test_ai_quality_evaluation.py -q
 ```
 
-The evaluator rewrites `evaluation_results.csv` and `quality_report.md` deterministically from the checked-in source artifacts.
+The evaluator rewrites `evaluation_results.csv` and `quality_report.md` deterministically from `data/benchmark.json`.
 
 ## What the lab demonstrates
 
@@ -76,15 +75,15 @@ The evaluator rewrites `evaluation_results.csv` and `quality_report.md` determin
 - defining repeatable scoring guidance;
 - validating answers against explicit source material;
 - detecting omissions and unsupported claims;
-- building prompt banks and golden sets;
-- expanding coverage with edge cases and high-risk scenarios;
+- building a prompt bank and golden set;
+- expanding coverage across risk levels and edge cases;
 - documenting reviewer rationale;
 - producing concise quality metrics and defect themes;
 - preserving a human quality gate.
 
 ## Limits
 
-- The candidate responses are authored synthetic examples, not outputs from a deployed model.
+- Candidate responses are authored synthetic examples, not outputs from a deployed model.
 - Keyword checks are intentionally simple and inspectable; they are not semantic evaluation.
 - Human scores are example annotations by the project author, not calibrated production labels.
 - The lab does not measure model drift, production latency, user impact, or real customer outcomes.

@@ -12,14 +12,14 @@
 - **Acceptable-variant pass rate:** 100%
 - **Intentionally flawed-variant fail rate:** 100%
 
-The transparent checks and example human annotations separate all four acceptable responses from all four intentionally flawed responses. This demonstrates evaluation design and reproducibility; it is not a claim of production model performance.
+The transparent checks and example human annotations separate acceptable responses from intentionally flawed responses. This demonstrates evaluation design and reproducibility; it is not a claim of production model performance.
 
 ## Defect themes
 
-- Unsupported or forbidden claims
-- Omitted decision-critical facts
-- Missing human-review boundaries
-- Missing emergency escalation
+- **omission:** 4
+- **unsupported or forbidden claim:** 4
+- **missing human review:** 2
+- **missing emergency escalation:** 1
 
 ## Release logic
 
@@ -27,23 +27,7 @@ A response fails when it contains a forbidden claim, misses required emergency e
 
 ## Coverage
 
-The prompt bank spans four fictional public-service interactions:
-
-- low-risk parking guidance;
-- medium-risk public-records status;
-- high-risk benefits eligibility screening;
-- critical emergency communication.
-
-## What this proves
-
-- rubric design;
-- source-grounded evaluation;
-- golden-set construction;
-- edge-case coverage;
-- human scoring with rationale;
-- reproducible quality checks;
-- explicit safety and escalation gates;
-- concise stakeholder reporting.
+The prompt bank spans low-, medium-, high-, and critical-risk fictional public-service interactions: parking, records, benefits screening, and emergency communication.
 
 ## Limitations
 
@@ -60,4 +44,4 @@ python ai_quality_evaluation/evaluate.py
 python -m pytest tests/test_ai_quality_evaluation.py -q
 ```
 
-Running the evaluator regenerates `evaluation_results.csv` and this report deterministically from `data/benchmark.json`.
+Detailed row-level results are in [`evaluation_results.csv`](evaluation_results.csv).

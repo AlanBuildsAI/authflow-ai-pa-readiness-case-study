@@ -45,6 +45,7 @@ synthetic-data safety · testing.
 [Product Strategy](docs/product_strategy.md) ·
 [Commercialization Roadmap](docs/commercialization_roadmap.md) ·
 [Recruiter Review Guide](docs/recruiter_review_guide.md) ·
+[AI Quality Evaluation Lab](ai_quality_evaluation/README.md) ·
 [Safety Boundaries](#safety-boundaries) ·
 [How to Run](#how-to-run-locally)
 
